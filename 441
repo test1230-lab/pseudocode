@@ -1,0 +1,272 @@
+C      ALGORITHM 441, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 16, NO. 1, January, 1973, P.51.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Thu Dec 15 13:28:06 2005
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS441_PRB tests DIPOLE.
+c
+      implicit none
+
+      integer sample_num
+      integer test_num
+
+      parameter ( sample_num = 1000 )
+      parameter ( test_num = 3 )
+
+      real a
+      real alpha_test(test_num)
+      real alpha
+      real b
+      real dipole
+      integer i
+      real mean
+      real r
+      real r_test(test_num)
+      integer seed
+      integer test
+      real variance
+      real x(sample_num)
+      real xmax
+      real xmin
+
+      save alpha_test
+      save r_test
+
+      data alpha_test / 0.0, 0.785398163397448, 1.57079632679490 /
+      data r_test / 1.0, 0.5, 0.0 /
+
+      seed = 123456789
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS441_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 441, generating'
+      write ( *, '(a)' ) '  random deviates from the dipole '
+      write ( *, '(a)' ) '  distribution.'
+
+      do test = 1, test_num
+
+        alpha = alpha_test(test)
+        r = r_test(test)
+
+        a = r * cos ( alpha )
+        b = r * sin ( alpha )
+
+        write ( *, '(a)' ) ' '
+        write ( *, '(a,g14.6)' ) ' A = ', a
+        write ( *, '(a,g14.6)' ) ' B = ', b
+
+        xmax = -1.0E+30
+        xmin = +1.0D+30
+        mean = 0.0D+00
+
+        do i = 1, sample_num
+          x(i) = dipole ( a, b, seed )
+          xmax = max ( xmax, x(i) )
+          xmin = min ( xmin, x(i) )
+          mean = mean + x(i)
+        end do
+
+        mean = mean / real ( sample_num )
+
+        variance = 0.0
+        do i = 1, sample_num
+          variance = variance + ( x(i) - mean )**2
+        end do
+        variance = variance / real ( sample_num - 1 )
+
+        write ( *, '(a)' ) ' '
+        write ( *, '(a,i6)'    ) '  Sample size =     ', sample_num
+        write ( *, '(a,g14.6)' ) '  Sample mean =     ', mean
+        write ( *, '(a,g14.6)' ) '  Sample variance = ', variance
+        write ( *, '(a,g14.6)' ) '  Sample maximum =  ', xmax
+        write ( *, '(a,g14.6)' ) '  Sample minimum =  ', xmin
+
+      end do
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS441_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      stop
+      end
+      function r11 ( seed )
+
+c*******************************************************************************
+c
+cc R11 returns a pseudorandom number between -1 and +1.
+c
+c  Modified:
+c
+c    06 December 2005
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Parameters:
+c
+c    Input/output, integer SEED, the "seed" value, which should NOT be 0.
+c    On output, SEED has been updated.
+c
+c    Output, real RD11, a new pseudorandom variate, strictly between -1 and 1.
+c
+      implicit none
+
+      integer k
+      real r11
+      integer seed
+
+      k = seed / 127773
+
+      seed = 16807 * ( seed - k * 127773 ) - k * 2836
+
+      if ( seed < 0 ) then
+        seed = seed + 2147483647
+      end if
+c
+c  Although SEED can be represented exactly as a 32 bit integer,
+c  it generally cannot be represented exactly as a 32 bit real number!
+c
+      r11 = 2.0 * real ( dble ( seed ) * 4.656612875D-10 ) - 1.0
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS441_PRB
+  Test TOMS algorithm 441, generating
+  random deviates from the dipole 
+  distribution.
+ 
+ A =    1.00000    
+ B =    0.00000    
+ 
+  Sample size =       1000
+  Sample mean =       0.365594E-02
+  Sample variance =   0.996543    
+  Sample maximum =     7.78188    
+  Sample minimum =    -8.35221    
+ 
+ A =   0.353553    
+ B =   0.353553    
+ 
+  Sample size =       1000
+  Sample mean =       0.110592    
+  Sample variance =    298.053    
+  Sample maximum =     257.363    
+  Sample minimum =    -291.002    
+ 
+ A =   -0.00000    
+ B =    0.00000    
+ 
+  Sample size =       1000
+  Sample mean =        1.61698    
+  Sample variance =    1352.47    
+  Sample maximum =     759.231    
+  Sample minimum =    -347.037    
+ 
+TOMS441_PRB
+  Normal end of execution.
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      REAL FUNCTION DIPOLE ( A, B, SEED )
+      EXTERNAL R11
+      REAL X, Y, A, B, R11
+      INTEGER SEED
+10    X = R11 ( SEED )
+      Y = R11 ( SEED )
+      IF ( 1.0 - X * X - Y * Y ) 10, 10, 20
+20    DIPOLE = ( Y + B ) / ( X + A )
+      RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

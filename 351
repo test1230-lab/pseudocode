@@ -1,0 +1,422 @@
+C      ALGORITHM 351, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 12, NO. 6, June, 1969, PP.324--325.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Wed Jan 18 20:30:23 2006
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS351_PRB tests TOMS351.
+c
+c  Modified:
+c
+c    05 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS351_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 351,'
+      write ( *, '(a)' ) '  Rombert integration.'
+      write ( *, '(a)' ) ' '
+
+      call test01
+      call test02
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS351_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      stop
+      end
+      subroutine test01
+
+c***********************************************************************
+c
+cc TEST01 tests ROMINT.
+c
+c  Modified:
+c
+c    05 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      real a
+      real b
+      real eps
+      real err
+      real f01
+      external f01
+      integer maxe
+      integer maxe_in
+      integer n
+      real pi
+      real val
+
+      eps = 0.000001E+00
+      pi = 3.14159265E+00
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01'
+      write ( *, '(a)' ) '  Test ROMINT, for Romberg integration.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,g14.6)' ) '  Error tolerance EPS = ', eps
+      write ( *, '(a)' ) ' '
+
+      write ( *, '(a)' ) 
+     &  '      A         B   MAXE  MAXE     N      ERR             VAL'
+      write ( *, '(a)' ) 
+     &  '                    in    out'
+      write ( *, '(a)' ) ' '
+
+      a = 0.0E+00
+      b = pi / 2.0E+00
+
+      do 10 maxe_in = 1, 5
+
+        maxe = maxe_in
+
+        call romint ( val, err, eps, a, b, n, maxe, f01 )
+
+        write ( *, 
+     &    '(2x,f8.4,2x,f8.4,2x,i2,4x,i2,2x,i4,2x,g14.6,2x,g14.6)' ) 
+     &    a, b, maxe_in, maxe, n, err, val
+
+10    continue
+
+      return
+      end
+      subroutine test02
+
+c***********************************************************************
+c
+cc TEST02 tests ROMINT.
+c
+c  Modified:
+c
+c    05 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      real a
+      real b
+      real eps
+      real err
+      real f02
+      external f02
+      integer maxe
+      integer maxe_in
+      integer n
+      real val
+
+      eps = 0.000001E+00
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST02'
+      write ( *, '(a)' ) '  Test ROMINT, for Romberg integration.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,g14.6)' ) '  Error tolerance EPS = ', eps
+      write ( *, '(a)' ) ' '
+
+      write ( *, '(a)' ) 
+     &  '      A         B   MAXE  MAXE     N      ERR             VAL'
+      write ( *, '(a)' ) 
+     &  '                    in    out'
+      write ( *, '(a)' ) ' '
+
+      a = 0.0E+00
+      b = 4.3E+00
+
+      do 10 maxe_in = 1, 5
+
+        maxe = maxe_in
+
+        call romint ( val, err, eps, a, b, n, maxe, f02 )
+
+        write ( *, 
+     &    '(2x,f8.4,2x,f8.4,2x,i2,4x,i2,2x,i4,2x,g14.6,2x,g14.6)' ) 
+     &    a, b, maxe_in, maxe, n, err, val
+
+10    continue
+
+      return
+      end
+      function f01 ( x )
+
+c***********************************************************************
+c
+cc F01 evaluates test function 1.
+c
+      implicit none
+
+      real f01
+      real x
+
+      f01 = cos ( x )
+
+      return
+      end
+      function f02 ( x )
+
+c***********************************************************************
+c
+cc F02 evaluates test function 2.
+c
+      implicit none
+
+      real f02
+      real x
+
+      f02 = exp ( - x * x )
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS351_PRB
+  Test TOMS algorithm 351,
+  Rombert integration.
+ 
+ 
+TEST01
+  Test ROMINT, for Romberg integration.
+ 
+  Error tolerance EPS =   0.100000E-05
+ 
+      A         B   MAXE  MAXE     N      ERR             VAL
+                    in    out
+ 
+    0.0000    1.5708   1     0     5    0.214529E-02     1.00013    
+    0.0000    1.5708   2     0     9    0.825524E-05     1.00000    
+    0.0000    1.5708   3     3    17    0.596046E-07     1.00000    
+    0.0000    1.5708   4     3    17    0.596046E-07     1.00000    
+    0.0000    1.5708   5     3    17    0.596046E-07     1.00000    
+ 
+TEST02
+  Test ROMINT, for Romberg integration.
+ 
+  Error tolerance EPS =   0.100000E-05
+ 
+      A         B   MAXE  MAXE     N      ERR             VAL
+                    in    out
+ 
+    0.0000    4.3000   1     0     5    0.718799E-01    0.816721    
+    0.0000    4.3000   2     0     9    0.692248E-01    0.890738    
+    0.0000    4.3000   3     0    17    0.567326E-02    0.886163    
+    0.0000    4.3000   4     0    33    0.861883E-04    0.886227    
+    0.0000    4.3000   5     5    65    0.149012E-06    0.886227    
+ 
+TOMS351_PRB
+  Normal end of execution.
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      SUBROUTINE ROMINT ( VAL, ERR, EPS, A, B, N, MAXE, F )
+C
+      IMPLICIT NONE
+
+      REAL A
+      REAL B
+      REAL BB
+      REAL EPS
+      REAL ERR
+      EXTERNAL F
+      REAL F
+      REAL H
+      INTEGER J
+      INTEGER K
+      INTEGER K0
+      INTEGER K1
+      INTEGER K2
+      INTEGER KK
+      INTEGER KKK
+      INTEGER L
+      INTEGER MAXE
+      INTEGER N
+      INTEGER N0
+      INTEGER N1
+      REAL R
+      REAL RM(16)
+      REAL S
+      REAL S0
+      REAL S1
+      REAL T
+      REAL VAL
+C
+C  INITIAL TRAPEZOID RULE.
+C
+      T = ( B - A ) * ( F(A) + F(B) ) * 0.5E+00
+C
+C  INITIAL RECTANGLE VALUE.
+C
+      RM(1) = ( B - A ) * F ( ( A + B ) * 0.5E+00 )
+
+      N = 2
+      R = 4.0E+00
+
+      DO 11 K = 1, MAXE
+
+        BB = ( R * 0.5E+00 - 1.0E+00 ) / ( R - 1.0E+00 )
+C
+C  IMPROVED TRAPEZOID VALUE.
+C
+        T = RM(1) + BB * ( T - RM(1) )
+C
+C  DOUBLE NUMBER OF SUBDIVISIONS OF (A,B).
+C
+        N = 2 * N
+        S = 0.0E+00
+        H = ( B - A ) / FLOAT ( N )
+C
+C  CALCULATE RECTANGLE VALUE.
+C
+        IF ( N - 32 ) 1, 1, 2
+1       N0 = N
+        GO TO 4
+2       N0 = 32
+3       IF ( N - 512 ) 4, 4, 5
+4       N1 = N
+        GO TO 6
+5       N1 = 512
+6       DO 9 K2 = 1, N, 512
+          S1 = 0.0E+00
+          KK = K2 + N1 - 1
+          DO 8 K1 = K2, KK, 32
+            S0 = 0.0E+00
+            KKK = K1 + N0 - 1
+            DO 7 K0 = K1, KKK, 2
+              S0 = S0 + F ( A + FLOAT ( K0 ) * H )
+7           CONTINUE
+            S1 = S1 + S0
+8         CONTINUE
+          S = S + S1
+9       CONTINUE
+        RM(K+1) = 2.0E+00 * H * S
+C
+C  END CALCULATION OF RECTANGLE VALUE.
+C
+        R = 4.0E+00
+C
+C  FORM ROMBERG TABLE FROM RECTANGLE VALUES.
+C
+        DO 10 J = 1, K
+          L = K + 1 - J
+          RM(L) = RM(L+1) + ( RM(L+1) - RM(L) ) / ( R - 1.0E+00 )
+          R = 4.0E+00 * R
+10      CONTINUE
+
+        ERR = ABS ( T - RM(1) ) * 0.5E+00
+C
+C  CONVERGENCE TEST.
+C
+        IF ( ERR - EPS ) 12, 12, 11
+
+11    CONTINUE
+
+      K = 0
+
+12    VAL = ( T + RM(1) ) * 0.5E+00
+      N = N + 1
+      MAXE = K
+
+      RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

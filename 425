@@ -1,0 +1,495 @@
+C      ALGORITHM 425, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 15, NO. 5, May, 1972, PP.355--357.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Thu Dec 15 13:28:19 2005
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS425_PRB tests RNVR.
+c
+      implicit none
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS425_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 425, multivariate'
+      write ( *, '(a)' ) '  random normal variable generation.'
+
+      call test01
+      call test02
+      call test03
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS425_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      stop
+      end
+      subroutine test01
+
+c***********************************************************************
+c
+cc TEST01 tests RNVR.
+c
+      integer ni
+      integer nv
+      parameter ( ni = 2 )
+      parameter ( nv = 2 )
+
+      real a(nv,nv)
+      integer i, j
+      integer iarg
+      integer ient
+      real x(ni)
+
+      a(1,1) = 1.0
+      a(1,2) = 0.0
+      a(2,1) = 0.0
+      a(2,2) = 1.0
+
+      ient = -1
+      iarg = 123456789
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01'
+      write ( *, '(a)' ) '  Test RNVR'
+      write ( *, '(a)' ) '  Dimension is 2.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Covariance matrix:'
+      write ( *, '(a)' ) '    1.0  0.0'
+      write ( *, '(a)' ) '    0.0  1.0'
+      write ( *, '(a)' ) ' '
+
+      do i = 1, 10
+
+        call rnvr ( x, a, nv, ni, ient, iarg )
+        write ( *, '(2x,g14.6,2x,g14.6)' ) ( x(j), j = 1, ni )
+
+      end do
+
+      return
+      end
+      subroutine test02
+
+c***********************************************************************
+c
+cc TEST02 tests RNVR.
+c
+      integer ni
+      integer nv
+      parameter ( ni = 2 )
+      parameter ( nv = 2 )
+
+      real a(nv,nv)
+      integer i, j
+      integer iarg
+      integer ient
+      real x(ni)
+
+      a(1,1) = 1.0
+      a(1,2) = 0.3
+      a(2,1) = 0.3
+      a(2,2) = 1.0
+
+      ient = -1
+      iarg = 123456789
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST02'
+      write ( *, '(a)' ) '  Test RNVR'
+      write ( *, '(a)' ) '  Dimension is 2.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Covariance matrix:'
+      write ( *, '(a)' ) '    1.0  0.3'
+      write ( *, '(a)' ) '    0.3  1.0'
+      write ( *, '(a)' ) ' '
+
+      do i = 1, 10
+
+        call rnvr ( x, a, nv, ni, ient, iarg )
+        write ( *, '(2x,g14.6,2x,g14.6)' ) ( x(j), j = 1, ni )
+
+      end do
+
+      return
+      end
+      subroutine test03
+
+c***********************************************************************
+c
+cc TEST03 tests RNVR.
+c
+      integer ni
+      integer nv
+      parameter ( ni = 2 )
+      parameter ( nv = 2 )
+
+      real a(nv,nv)
+      integer i, j
+      integer iarg
+      integer ient
+      real x(ni)
+
+      a(1,1) = 1.00
+      a(1,2) = 0.99
+      a(2,1) = 0.99
+      a(2,2) = 1.00
+
+      ient = -1
+      iarg = 123456789
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST03'
+      write ( *, '(a)' ) '  Test RNVR'
+      write ( *, '(a)' ) '  Dimension is 2.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Covariance matrix:'
+      write ( *, '(a)' ) '    1.00  0.99'
+      write ( *, '(a)' ) '    0.99  1.00'
+      write ( *, '(a)' ) ' '
+
+      do i = 1, 10
+
+        call rnvr ( x, a, nv, ni, ient, iarg )
+        write ( *, '(2x,g14.6,2x,g14.6)' ) ( x(j), j = 1, ni )
+
+      end do
+
+      return
+      end
+      function rn ( seed )
+
+c*******************************************************************************
+c
+cc RN returns a unit single precision pseudorandom number.
+c
+c  Discussion:
+c
+c    This routine implements the recursion
+c
+c      seed = 16807 * seed mod ( 2**31 - 1 )
+c      rn = seed / ( 2**31 - 1 )
+c
+c    The integer arithmetic never requires more than 32 bits,
+c    including a sign bit.
+c
+c    If the initial seed is 12345, then the first three computations are
+c
+c      Input     Output      RN
+c      SEED      SEED
+c
+c         12345   207482415  0.096616
+c     207482415  1790989824  0.833995
+c    1790989824  2035175616  0.947702
+c
+c  Modified:
+c
+c    11 August 2004
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Paul Bratley, Bennett Fox, L E Schrage,
+c    A Guide to Simulation,
+c    Springer Verlag, pages 201-202, 1983.
+c
+c    Pierre L'Ecuyer,
+c    Random Number Generation,
+c    in Handbook of Simulation,
+c    edited by Jerry Banks,
+c    Wiley Interscience, page 95, 1998.
+c
+c    Bennett Fox,
+c    Algorithm 647:
+c    Implementation and Relative Efficiency of Quasirandom
+c    Sequence Generators,
+c    ACM Transactions on Mathematical Software,
+c    Volume 12, Number 4, pages 362-376, 1986.
+c
+c    P A Lewis, A S Goodman, J M Miller,
+c    A Pseudo-Random Number Generator for the System/360,
+c    IBM Systems Journal,
+c    Volume 8, pages 136-143, 1969.
+c
+c  Parameters:
+c
+c    Input/output, integer SEED, the "seed" value, which should NOT be 0.
+c    On output, SEED has been updated.
+c
+c    Output, real RN, a new pseudorandom variate,
+c    strictly between 0 and 1.
+c
+      implicit none
+
+      integer k
+      integer seed
+      real rn
+
+      k = seed / 127773
+
+      seed = 16807 * ( seed - k * 127773 ) - k * 2836
+
+      if ( seed < 0 ) then
+        seed = seed + 2147483647
+      end if
+c
+c  Although SEED can be represented exactly as a 32 bit integer,
+c  it generally cannot be represented exactly as a 32 bit real number!
+c
+      rn = real ( dble ( seed ) * 4.656612875D-10 )
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS425_PRB
+  Test TOMS algorithm 425, multivariate
+  random normal variable generation.
+ 
+TEST01
+  Test RNVR
+  Dimension is 2.
+ 
+  Covariance matrix:
+    1.0  0.0
+    0.0  1.0
+ 
+     1.24296        0.232724    
+   -0.134458       -0.688826    
+   -0.307862       -0.495332    
+   -0.430708        0.126488    
+   -0.702977       -0.809381E-01
+   -0.561967         1.45012    
+    0.757011       -0.284229    
+    0.143903        0.136589    
+   -0.217714        0.374654    
+   -0.811921       -0.311816    
+ 
+TEST02
+  Test RNVR
+  Dimension is 2.
+ 
+  Covariance matrix:
+    1.0  0.3
+    0.3  1.0
+ 
+     1.24296        0.594892    
+   -0.134458       -0.697435    
+   -0.307862       -0.564875    
+   -0.430708       -0.855063E-02
+   -0.702977       -0.288103    
+   -0.561967         1.21474    
+    0.757011       -0.440338E-01
+    0.143903        0.173469    
+   -0.217714        0.292083    
+   -0.811921       -0.541030    
+ 
+TEST03
+  Test RNVR
+  Dimension is 2.
+ 
+  Covariance matrix:
+    1.00  0.99
+    0.99  1.00
+ 
+     1.24296         1.26336    
+   -0.134458       -0.230284    
+   -0.307862       -0.374658    
+   -0.430708       -0.408557    
+   -0.702977       -0.707365    
+   -0.561967       -0.351783    
+    0.757011        0.709345    
+    0.143903        0.161732    
+   -0.217714       -0.162685    
+   -0.811921       -0.847789    
+ 
+TOMS425_PRB
+  Normal end of execution.
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+C Incorporates the changes suggested in the remark by Page
+C CACM 17(6) June 1974 p325
+      SUBROUTINE RNVR ( X, A, NV, NI, IENT, IARG )
+C  GENERATES A RANDOM NORMAL VECTOR (M,S)
+C  A      INPUT COVARIANCE MATRIX, CONDITIONAL MOMENTS RETURN
+C  X,B,C  WORK ARRAYS, RETURN VECTOR OF RANDOM NORMAL VARIATES IN X.
+C  NV,NI  ORDER OF COVARIANCE MATRIX, ORDER OF ARRAY.
+C  IENT   -1, INITIAL ENTRY.
+C          0, RETURN IF NOT POSITIVE DEFINITE.
+C          1, RETURN IF POSITIVE DEFINITE.
+C  IARG    ARGUMENT FOR RANDOM NUMBER GENERATOR.
+C     .. Scalar Arguments ..
+      INTEGER IARG,IENT,NI,NV
+C     ..
+C     .. Array Arguments ..
+      REAL A(NI,NI),X(NI)
+C     ..
+C     .. Local Scalars ..
+      REAL T
+      INTEGER I,J,K,NA,NB
+C     ..
+C     .. External Functions ..
+      REAL RNOR
+      EXTERNAL RNOR
+C     ..
+C     .. Intrinsic Functions ..
+      INTRINSIC SQRT
+
+      IF ( IENT ) 1, 9, 6
+C  ***  COMPUTE CONDITIONAL MOMENTS
+1     NA = NV - 1
+      DO 4 K = 1, NA
+        T = A(K,K)
+        IF ( T ) 10, 10, 2
+2       NB = K + 1
+        A(K,K) = SQRT ( T )
+        DO 3 I = NB, NV
+          A(I,K) = A(K,I) / T
+3       CONTINUE
+        DO 42 I = NB, NB
+          DO 41 J = I, NV
+            A(I,J) = A(I,J) - A(I,K) * A(K,J)
+41        CONTINUE
+42      CONTINUE
+4     CONTINUE
+      IF ( A(NV,NV) ) 10, 10, 5
+5     IENT = 1
+      A(NV,NV) = SQRT ( A(NV,NV) )
+C  ***  COMPUTE A RANDOM VECTOR
+6     DO 7 I = 1, NV
+        X(I) = RNOR ( IARG ) * A(I,I)
+7     CONTINUE
+      DO 8 I = 2, NV
+        NB = NV - I + 1
+        DO 81 J = 1, NB
+          X(NB+1) = X(NB+1) + A(NB+1,J) * X(J)
+81      CONTINUE
+8     CONTINUE
+9     RETURN
+10    IENT = 0
+      RETURN
+      END
+      REAL FUNCTION RNOR ( IR )
+C  GENERATES A RANDOM NORMAL NUMBER (0,1)
+C  IARG IS A LARGE ODD INTEGER FOR A BEGINNING ARGUMENT.
+C  REQUIRES FUNCTION RN WHICH GENERATES A UNIFORM RANDOM NUMBER 0-1.
+C     .. Scalar Arguments ..
+      INTEGER IR
+C     ..
+C     .. Local Scalars ..
+      REAL GO2,S,X,Y
+      INTEGER I
+C     ..
+C     .. External Functions ..
+      REAL RN
+      EXTERNAL RN
+C     ..
+C     .. Intrinsic Functions ..
+      INTRINSIC LOG,SQRT
+      DATA I /0/,GO2/0.0/
+      IF ( I .GT. 0 ) GO TO 30
+10    X = 2.0 * RN ( IR ) - 1.0
+      Y = 2.0 * RN ( IR ) - 1.0
+      S = X * X + Y * Y
+      IF ( S .GE. ( 1.0 ) ) GO TO 10
+      S = SQRT ( -2.0 * LOG ( S ) / S )
+      RNOR = X * S
+      GO2 = Y * S
+      I = 1
+      GO TO 40
+30    RNOR = GO2
+      I = 0
+40    RETURN
+      END
+
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

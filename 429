@@ -1,0 +1,451 @@
+C      ALGORITHM 429, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 15, NO. 8, August, 1972, PP.776--777.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Thu Dec 15 13:28:09 2005
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS429_PRB tests POLYAN, ACM TOMS algorithm 429.
+c
+      implicit none
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS429_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 429, which obtains'
+      write ( *, '(a)' ) '  information about the roots of '
+      write ( *, '(a)' ) '  a polynomial.'
+
+      call test01
+      call test02
+      call test03
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS429_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      stop
+      end
+      subroutine test01
+
+c***********************************************************************
+c
+cc TEST01 tests POLYAN with a polynomial suggested by Driessen and Hunt.
+c
+c  Discussion:
+c
+c    The original version of POLYAN, when given this polynomial, reported:
+c
+c    Roots are in annulus of inner radius 0.454E+00 and outer radius 0.836E+01,
+c    there are no real positive roots,
+c    the negative roots (if any) are between -.454E+00 and -0.836D+01,
+c    there are no roots with positive real parts.
+c
+c    But this is incorrect for the given polynomial.
+c
+c  Reference:
+c
+c    H B Driessen and E W Hunt,
+c    Remark on Algorithm 429,
+c    Communications of the ACM,
+c    Volume 16, Number 9, page 579, September 1973.
+c
+      implicit none
+
+      integer n
+      parameter ( n = 4 )
+
+      real c(n)
+      real cm(n)
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01'
+      write ( *, '(a)' ) '  p(x) = x^4 + 5.6562x^3 + 5.8854x^2'
+      write ( *, '(a)' ) '             + 7.3646x   + 6.1354'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Approximate roots:'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  -1.001,'
+      write ( *, '(a)' ) '  -4.7741, '
+      write ( *, '(a)' ) '   0.0089 + 1.1457 i,'
+      write ( *, '(a)' ) '   0.0089 - 1.1457 i.'
+      write ( *, '(a)' ) ' '
+
+      c(1) = 5.6562
+      c(2) = 5.8854
+      c(3) = 7.3646
+      c(4) = 6.1354
+
+      call polyan ( c, cm, n )
+
+      return
+      end
+      subroutine test02
+
+c***********************************************************************
+c
+cc TEST02 tests POLYAN with a polynomial with a single root.
+c
+      implicit none
+
+      integer n
+      parameter ( n = 4 )
+
+      real c(n)
+      real cm(n)
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST02'
+      write ( *, '(a)' ) '  p(x) = x^4 - 8 x^3 + 24 x^2 - 32 x + 16'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Exact roots:'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  2 (multiplicity 4)'
+      write ( *, '(a)' ) ' '
+
+      c(1) =  -8.0
+      c(2) =  24.0
+      c(3) = -32.0
+      c(4) =  16.0
+
+      call polyan ( c, cm, n )
+
+      return
+      end
+      subroutine test03
+
+c***********************************************************************
+c
+cc TEST03 tests POLYAN with a polynomial in the roots of unity.
+c
+      implicit none
+
+      integer n
+      parameter ( n = 5 )
+
+      real c(n)
+      real cm(n)
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST03'
+      write ( *, '(a)' ) '  p(x) = x^5 - 1'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Exact roots:'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  0.3090 + 0.9510 i'
+      write ( *, '(a)' ) ' -0.8090 + 0.5877 i'
+      write ( *, '(a)' ) ' -0.8090 - 0.5877 i'
+      write ( *, '(a)' ) '  0.3090 - 0.9510 i'
+      write ( *, '(a)' ) '  1'
+      write ( *, '(a)' ) ' '
+
+      c(1) =  0.0
+      c(2) =  0.0
+      c(3) =  0.0
+      c(4) =  0.0
+      c(5) = -1.0
+
+      call polyan ( c, cm, n )
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS429_PRB
+  Test TOMS algorithm 429, which obtains
+  information about the roots of 
+  a polynomial.
+ 
+TEST01
+  p(x) = x^4 + 5.6562x^3 + 5.8854x^2
+             + 7.3646x   + 6.1354
+ 
+  Approximate roots:
+ 
+  -1.001,
+  -4.7741, 
+   0.0089 + 1.1457 i,
+   0.0089 - 1.1457 i.
+ 
+ ROOTS ARE IN AN ANNULUS OF INNER RADIUS 0.454E+00 AND OUTER RADIUS 0.836E+01
+ THERE ARE NO REAL POSITIVE ROOTS
+ THE REAL NEGATIVE ROOTS(IF ANY) ARE BETWEEN-0.454E+00 AND-0.836E+01
+ 
+TEST02
+  p(x) = x^4 - 8 x^3 + 24 x^2 - 32 x + 16
+ 
+  Exact roots:
+ 
+  2 (multiplicity 4)
+ 
+ ROOTS ARE IN AN ANNULUS OF INNER RADIUS 0.333E+00 AND OUTER RADIUS 0.330E+02
+ THE POSITIVE ROOTS (IF ANY) ARE BETWEEN 0.333E+00 AND 0.330E+02
+ THERE ARE NO NEGATIVE REAL ROOTS
+ THERE ARE NO ROOTS WITH NEGATIVE REAL PARTS
+ 
+TEST03
+  p(x) = x^5 - 1
+ 
+  Exact roots:
+ 
+  0.3090 + 0.9510 i
+ -0.8090 + 0.5877 i
+ -0.8090 - 0.5877 i
+  0.3090 - 0.9510 i
+  1
+ 
+ ROOTS ARE IN AN ANNULUS OF INNER RADIUS 0.500E+00 AND OUTER RADIUS 0.200E+01
+ THE POSITIVE ROOTS (IF ANY) ARE BETWEEN 0.500E+00 AND 0.200E+01
+ THERE ARE NO NEGATIVE REAL ROOTS
+ 
+TOMS429_PRB
+  Normal end of execution.
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      SUBROUTINE POLYAN ( C, CM, N )
+C  POLYAN OBTAINS INFORMATION ABOUT THE LOCATION
+C  OF THE ROOTS OF A POLYNOMIAL BY USING
+C  BOUND, RADIUS AND HRWTZR.
+C  C IS AN N ELEMENT ARRAY CONTAINING THE COEFFICIENTS
+C  NORMALIZED SO THAT THE LEADING COEFFICIENT (WHICH
+C  IS NOT INCLUDED IN C) IS +1.0.
+C  CM IS A WORKING ARRAY THE SAME SIZE AS C.
+C  N = DEGREE OF POLYNOMIAL.
+C
+C     .. Scalar Arguments ..
+      INTEGER N
+C     ..
+C     .. Array Arguments ..
+      REAL C(N),CM(N)
+C     ..
+C     .. Local Scalars ..
+      REAL RIN,RNL,RNU,ROUT,RPL,RPU,X
+      INTEGER I,NI,NM1
+C     ..
+C     .. External Functions ..
+      REAL BOUND,RADIUS
+      LOGICAL HRWTZR
+      EXTERNAL BOUND,RADIUS,HRWTZR
+C  TEST FOR ZERO ROOT
+      IF ( C(N) .EQ. 0.0 ) GO TO 50
+C  COEFFICIENTS FOR RECIPROCAL POLYNOMIAL ARE PUT IN CM.
+      CM(N) = 1. / C(N)
+      NM1 = N - 1
+      DO 5 I = 1, NM1
+        NI = N - I
+        CM(I) = CM(N) * C(NI)
+5     CONTINUE
+      ROUT = RADIUS ( C, N )
+      RIN = 1. / RADIUS ( CM, N )
+      WRITE(*, 201 ) RIN, ROUT
+201   FORMAT ( " ROOTS ARE IN AN ANNULUS OF INNER RADIUS", E10.3, " AND 
+     +OUTER RADIUS", E10.3 )
+      RPU = BOUND ( C, N )
+      IF ( RPU .NE. 0.0 ) GO TO 10
+      WRITE(*, 202 )
+202   FORMAT ( " THERE ARE NO REAL POSITIVE ROOTS" )
+      GO TO 20
+10    RPL = 1. / BOUND ( CM, N )
+      WRITE(*, 203 ) RPL, RPU
+C  COEFFICIENTS FOR NEGATIVE RECIPROCAL ARE PUT IN CM.
+203   FORMAT  ( " THE POSITIVE ROOTS (IF ANY) ARE BETWEEN", E10.3, " AND
+     +", E10.3 )
+20    DO 25 I = 1, N, 2
+        CM(I) = - CM(I)
+25    CONTINUE
+      RNU = BOUND ( CM, N )
+      IF ( RNU .NE. 0.0 ) GO TO 30
+      WRITE(*, 204 )
+204   FORMAT  ( " THERE ARE NO NEGATIVE REAL ROOTS" )
+      GO TO 40
+C  COEFFICIENTS FOR NEGATIVE ROOTS ARE PUT IN CM.
+30    X = -1.0
+      DO 35 I = 1, N
+        CM(I) = X * C(I)
+        X = -X
+35    CONTINUE
+      RNU = -1. / RNU
+      RNL = - BOUND ( CM, N )
+      WRITE(*, 205 ) RNU, RNL
+205   FORMAT   ( " THE REAL NEGATIVE ROOTS(IF ANY) ARE BETWEEN",  E10.3,
+     + " AND", E10.3 )
+40    IF ( HRWTZR ( C, N ) ) WRITE(*, 206 )
+206   FORMAT   ( " THERE ARE NO ROOTS WITH POSITIVE REAL PARTS" )
+      IF ( HRWTZR ( CM, N ) ) WRITE(*, 207 )
+207   FORMAT   ( " THERE ARE NO ROOTS WITH NEGATIVE REAL PARTS" )
+      RETURN
+50    WRITE(*, 208 )
+208   FORMAT  ( " POLYNOMIAL HAS A ZERO ROOT-REDUCE DEGREE" )
+      RETURN
+      END
+      REAL FUNCTION RADIUS ( C, N )
+C  RADIUS RETURNS AN UPPER LIMIT FOR THE MODULUS
+C  OF THE ROOTS OF AN N DEGREE POLYNOMIAL.
+C
+C     .. Scalar Arguments ..
+      INTEGER N
+C     ..
+C     .. Array Arguments ..
+      REAL C(N)
+C     ..
+C     .. Local Scalars ..
+      INTEGER I
+C     ..
+C     .. Intrinsic Functions ..
+      INTRINSIC ABS
+      RADIUS = ABS ( C(1) )
+      DO 10 I = 2, N
+        IF ( ABS ( C(I) ) .GT. RADIUS ) RADIUS = ABS ( C(I) )
+10    CONTINUE
+      RADIUS = 1. + RADIUS
+      RETURN
+      END
+      REAL FUNCTION BOUND ( C, N )
+C  BOUND RETURNS AN UPPER LIMIT FOR THE
+C  POSITIVE REAL ROOTS OF AN N DEGREE POLYNOMIAL.
+C
+C     .. Scalar Arguments ..
+      INTEGER N
+C     ..
+C     .. Array Arguments ..
+      REAL C(N)
+C     ..
+C     .. Local Scalars ..
+      INTEGER I,M
+C     ..
+C     .. Intrinsic Functions ..
+      INTRINSIC FLOAT
+C     ..
+      M = 0
+      BOUND = 0.0
+      DO 9 I  =  1, N
+        IF ( M .GT. 0 ) GO TO 10
+        IF ( C(I) .LT. 0.0 ) M = I
+10      IF ( C(I) .LT. BOUND ) BOUND = C(I)
+9     CONTINUE
+      IF ( M .EQ. 0 ) RETURN
+      BOUND = 1. + ( -BOUND )** ( 1. / FLOAT ( M ) )
+      RETURN
+      END
+      LOGICAL FUNCTION HRWTZR ( C, N )
+C  HRWTZR RETURNS .TRUE. IF ALL THE ROOTS HAVE
+C  NEGATIVE REAL PARTS, OTHERWISE .FALSE. IS RETURNED.
+C  IF A REAL PART IS ZERO, THEN .FALSE. IS RETURNED.
+C
+C     .. Scalar Arguments ..
+      INTEGER N
+C     ..
+C     .. Array Arguments ..
+      REAL C(N)
+C     ..
+C     .. Local Scalars ..
+      REAL C1
+      INTEGER I,K,M
+C     ..
+      HRWTZR = .FALSE.
+C%%
+C%% Modifications as suggested by Driessen and Hunt,
+C%% CACM Volume 16, Number 9, page 579, September 1973.
+C%%
+      IF ( C(1) .LE. 0.0 .OR. C(N) .LE. 0. ) RETURN
+      C1 = C(1)
+      M = N - 1
+      DO 30 I = 2, M
+        DO 20 K = I, M, 2
+          C(K) = C(K) - C(K+1) / C1
+20    CONTINUE
+        C1 = C(I) / C1
+        IF ( C1 .LE. 0.0 ) RETURN
+30    CONTINUE
+      HRWTZR = .TRUE.
+      RETURN
+      END
+
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

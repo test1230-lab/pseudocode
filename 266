@@ -1,0 +1,228 @@
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Sp/
+#	Sp/Drivers/
+#	Sp/Drivers/driver.f90
+#	Sp/Drivers/driverrem.f90
+#	Sp/Src/
+#	Sp/Src/src.f90
+#	Sp/Src/srcrem.f90
+# This archive created: Fri Feb 23 16:56:30 2001
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'driver.f90'
+then
+	echo shar: will not over-write existing file "'driver.f90'"
+else
+cat << "SHAR_EOF" > 'driver.f90'
+
+program test
+
+use alg266
+
+integer :: i
+real :: xval
+
+integer, parameter :: nvals = 5000
+integer :: seed = 32767
+
+
+call setseed(seed)
+
+do i = 1, nvals
+  xval = random(0.0e0, 1.0e0)
+end do
+
+! Check 5000th number is as expected
+if (x == 40145055) then
+  write(6,*) "5000th number determined correctly"
+else
+  write(6,*) "IMPLEMENTATION ERROR"
+endif
+
+end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driverrem.f90'
+then
+	echo shar: will not over-write existing file "'driverrem.f90'"
+else
+cat << "SHAR_EOF" > 'driverrem.f90'
+
+program test
+
+use alg266r
+
+integer :: i
+real :: xval
+
+integer, parameter :: nvals = 5000
+integer :: seed = 32767
+
+
+call setseed(seed)
+
+do i = 1, nvals
+  xval = random(0.0e0, 1.0e0)
+end do
+
+! Check 5000th number is as expected
+if (x == 351613) then
+  write(6,*) "5000th number determined correctly"
+else
+  write(6,*) "IMPLEMENTATION ERROR"
+endif
+
+end
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f90'
+then
+	echo shar: will not over-write existing file "'src.f90'"
+else
+cat << "SHAR_EOF" > 'src.f90'
+!     ALGORITHM 266, COLLECTED ALGORITHMS FROM ACM.
+!     ALGORITHM APPEARED IN CACM, VOL 8, NO. 10,
+!     OCT., 1965, P. 605--606.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!
+!!!!  UNDER NO CIRCUMSTANCES SHOULD THIS RANDOM NUMBER
+!!!!  GENERATOR BE USED FOR SERIOUS COMPUTING
+!!!!
+!!!!  Code provided solely for archival purposes
+!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+module alg266
+  integer :: x
+
+contains
+  subroutine setseed(y)
+  integer, intent(in) :: y
+  
+! set the initial seed of the generator. 
+!
+  x = y
+
+  end subroutine setseed
+
+  real function random(a, b)
+  real, intent(in) :: a, b
+
+!
+! Implementation of acm algorithm 266. This is provided
+! purely for historical reasons and should never be used
+! in practice.
+!
+! The implementation assumes that the default integer is
+! at least 31 bits (excluding the sign).
+!
+! The returned value is in the range (a,b).
+!
+! The generator used is
+!   x(n+1) = 3125*x(n) mod 2^26
+! which has a period of 2^24.
+!
+  integer, parameter :: multiplier(3) = (/25,25,5/)
+  integer, parameter :: modval = 67108864
+  real, parameter :: mrecip = 2.0**(-26)
+  integer :: i
+
+  do i = 1, 3
+    x = mod (multiplier(i) * x, modval)
+  end do
+
+
+! Generate a real value in the required range
+  random = real(x)*mrecip*(b-a) + a
+
+  end function random
+
+end module
+
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'srcrem.f90'
+then
+	echo shar: will not over-write existing file "'srcrem.f90'"
+else
+cat << "SHAR_EOF" > 'srcrem.f90'
+!     REMARK ON ALGORITHM 266, COLLECTED ALGORITHMS FROM ACM.
+!     ALGORITHM APPEARED IN CACM, VOL 9, NO. 9,
+!     SEP., 1966, P. 687--687.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!
+!!!!  UNDER NO CIRCUMSTANCES SHOULD THIS RANDOM NUMBER
+!!!!  GENERATOR BE USED FOR SERIOUS COMPUTING
+!!!!
+!!!!  Code provided solely for archival purposes
+!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+module alg266r
+  integer :: x
+
+contains
+  subroutine setseed(y)
+  integer, intent(in) :: y
+  
+! set the initial seed of the generator. 
+!
+  x = y
+
+  end subroutine setseed
+
+  real function random(a, b)
+  real, intent(in) :: a, b
+
+!
+! Implementation of acm remark on algorithm 266. This is provided
+! purely for historical reasons and should never be used
+! in practice.
+!
+! The implementation assumes that the default integer is
+! at least 29 bits (excluding the sign).
+!
+! The returned value is in the range (a,b).
+!
+! The generator used is
+!   x(n+1) = 125*x(n) mod 2796203
+! which has a period of ?????
+!
+  integer, parameter :: modval = 2796203
+  real, parameter :: mrecip = 1.0/2796203
+
+  x = mod (125 * x, modval)
+
+
+! Generate a real value in the required range
+  random = real(x)*mrecip*(b-a) + a
+
+  end function random
+
+end module
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+#       End of shell archive
+exit 0
+

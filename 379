@@ -1,0 +1,1101 @@
+C      ALGORITHM 379, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 13, NO. 4, April, 1970, PP.260--263.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Dp/
+#	Fortran/Dp/Drivers/
+#	Fortran/Dp/Drivers/Makefile
+#	Fortran/Dp/Drivers/driver.f
+#	Fortran/Dp/Drivers/res
+#	Fortran/Dp/Src/
+#	Fortran/Dp/Src/src.f
+# This archive created: Wed Jan 18 20:30:13 2006
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Dp'
+then
+	mkdir 'Dp'
+fi
+cd 'Dp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS379_PRB tests TOMS379.
+c
+c  Modified:
+c
+c    12 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS379_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 379, automatic'
+      write ( *, '(a)' ) '  numerical integration.'
+      write ( *, '(a)' ) ' '
+
+      call test01
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS379_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      write ( *, '(a)' ) ' '
+
+      stop
+      end
+      subroutine test01
+
+c***********************************************************************
+c
+cc TEST01 tests QUAD.
+c
+      implicit none
+
+      double precision a
+      double precision big
+      double precision error
+      double precision exact
+      double precision f01, f02, f03, f04, f05, f06, 
+     +                 f07, f08, f09, f10, f11, f12, f13
+      external f01
+      external f02
+      external f03
+      external f04
+      external f05
+      external f06
+      external f07
+      external f08
+      external f09
+      external f10
+      external f11
+      external f12
+      external f13
+      double precision fifth
+      integer i
+      integer j
+      integer no
+      double precision pi
+      double precision result
+      double precision rum
+      double precision squank
+
+      pi = 3.141592653589793D+00
+      error = 0.1D+00
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01'
+      write ( *, '(a)' ) '  Test SQUANK,'
+      write ( *, '(a)' ) '  for adaptive Simpson quadrature.'
+
+      do i = 1, 3
+
+        error = error / 100.0D+00
+
+        write ( *, '(a)' ) ' '
+        write ( *, '(a,g14.6)' ) '  Error tolerance ERROR = ', error
+        write ( *, '(a)' ) ' '
+
+        write ( *, '(a,a)' ) 
+     &  '            NO      SQUANK',
+     &  '          EXACT           ERROR       RUM'
+        write ( *, '(a)' ) ' '
+
+        j = 1
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f01 )
+
+        exact = 2.0D+00 / 3.0D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 2
+        a = -1.0D+00
+        big =  1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f02 )
+
+        exact = 0.4794282267D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 3
+        a = -1.0D+00
+        big =  1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f03 )
+
+        exact = 1.582232964D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 4
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f04 )
+
+        exact = 2.0D+00 / 5.0D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 5
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f05 )
+
+        exact = 0.8669729873D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 6
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f06 )
+
+        exact = 1.154700669D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 7
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f07 )
+
+        exact = 0.7775046341D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 8
+        a = 0.1D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f08 )
+
+        exact = 0.009098645256D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 9
+        a =  0.0D+00
+        big = 10.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f09 )
+
+        exact = 0.4993638029D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 10
+        a = 0.0D+00
+        big = pi
+
+        result = squank ( a, big, error, fifth, rum, no, f10 )
+
+        exact = 0.8386763234D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 11
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f11 )
+
+        exact = -1.0D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 12
+        a = 0.0D+00
+        big = 1.0D+00
+
+        result = squank ( a, big, error, fifth, rum, no, f12 )
+
+        exact = -0.6346651825D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+        j = 13
+        a = 0.0D+00
+        big = 1.0D+00
+ 
+        result = squank ( a, big, error, fifth, rum, no, f13 )
+
+        exact = 0.013492485650D+00
+
+        write ( *, 
+     &    '(2x,i2,2x,i8,2x,g14.6,2x,g14.6,2x,g10.2,2x,g10.2)' ) 
+     &    j, no, result, exact, abs ( result - exact ), rum
+
+      end do
+
+      return
+      end
+      function f01 ( x )
+
+c***********************************************************************
+c
+cc F01 evaluates test function 1.
+c
+      implicit none
+
+      double precision f01
+      double precision x
+
+      f01 = sqrt ( x )
+
+      return
+      end
+      function f02 ( x )
+
+c***********************************************************************
+c
+cc F02 evaluates test function 2.
+c
+      implicit none
+
+      double precision f02
+      double precision x
+
+      f02 = 0.92D+00 * cosh ( x ) - cos ( x )
+
+      return
+      end
+      function f03 ( x )
+
+c***********************************************************************
+c
+cc F03 evaluates test function 3.
+c
+      implicit none
+
+      double precision f03
+      double precision x
+
+      f03 = 1.0D+00 / ( x**4 + x**2 + 0.9D+00 )
+
+      return
+      end
+      function f04 ( x )
+
+c***********************************************************************
+c
+cc F04 evaluates test function 4.
+c
+      implicit none
+
+      double precision f04
+      double precision x
+
+      f04 = sqrt ( x**3 )
+
+      return
+      end
+      function f05 ( x )
+
+c***********************************************************************
+c
+cc F05 evaluates test function 5.
+c
+      implicit none
+
+      double precision f05
+      double precision x
+
+      f05 = 1.0D+00 / ( 1.0D+00 + x**4 )
+
+      return
+      end
+      function f06 ( x )
+
+c***********************************************************************
+c
+cc F06 evaluates test function 6.
+c
+      implicit none
+
+      double precision f06
+      double precision pi
+      double precision x
+
+      pi = 3.141592653589793D+00
+
+      f06 = 1.0D+00 / ( 1.0D+00 + 0.5D+00 * sin ( 10.0D+00 * pi * x ) )
+
+      return
+      end
+      function f07 ( x )
+
+c***********************************************************************
+c
+cc F07 evaluates test function 7.
+c
+c  Modified:
+c
+c    12 January 2006
+c
+      implicit none
+
+      double precision f07
+      double precision x
+
+      if ( x .eq. 0.0D+00 ) then
+        f07 = 1.0D+00
+      else
+        f07 = x / ( exp ( x ) - 1.0D+00 )
+      end if
+
+      return
+      end
+      function f08 ( x )
+
+c***********************************************************************
+c
+cc F08 evaluates test function 8.
+c
+      implicit none
+
+      double precision f08
+      double precision pi
+      double precision x
+
+      pi = 3.141592653589793D+00
+
+      f08 = sin ( 100.0D+00 * pi * x ) / ( pi * x )
+
+      return
+      end
+      function f09 ( x )
+
+c***********************************************************************
+c
+cc F09 evaluates test function 9.
+c
+      implicit none
+
+      double precision f09
+      double precision pi
+      double precision x
+
+      pi = 3.141592653589793D+00
+
+      f09 = 50.0D+00 / ( 2500.0D+00 * x**2 + 1.0D+00 ) / pi
+
+      return
+      end
+      function f10 ( x )
+
+c***********************************************************************
+c
+cc F10 evaluates test function 10.
+c
+      implicit none
+
+      double precision arg
+      double precision f10
+      double precision x
+
+      arg =         cos (           x ) 
+     &  + 3.0D+00 * sin (           x ) 
+     &  + 2.0D+00 * cos ( 2.0D+00 * x )
+     &  + 3.0D+00 * cos ( 3.0D+00 * x ) 
+     &  + 3.0D+00 * sin ( 2.0D+00 * x )
+
+      f10 = cos ( arg )
+
+      return
+      end
+      function f11 ( x )
+
+c***********************************************************************
+c
+cc F11 evaluates test function 11.
+c
+c  Modified:
+c
+c    12 January 2006
+c
+      implicit none
+
+      double precision f11
+      double precision x
+
+      if ( x .le. 0.0D+00 ) then
+        f11 = 0.0D+00
+      else
+        f11 = log ( x )
+      end if
+
+      return
+      end
+      function f12 ( x )
+
+c***********************************************************************
+c
+cc F12 evaluates test function 12.
+c
+      implicit none
+
+      double precision f12
+      double precision pi
+      double precision x
+
+      pi = 3.141592653589793D+00
+
+      f12 = 4.0D+00 * pi**2 * x * sin ( 20.0D+00 * pi * x ) 
+     &  * cos ( 2.0D+00 * pi * x )
+
+      return
+      end
+      function f13 ( x )
+
+c***********************************************************************
+c
+cc F13 evaluates test function 13.
+c
+      implicit none
+
+      double precision f13
+      double precision x
+
+      f13 = 1.0D+00 / ( 1.0D+00 + ( 230.0D+00 * x - 30.0D+00 )**2 )
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS379_PRB
+  Test TOMS algorithm 379, automatic
+  numerical integration.
+ 
+ 
+TEST01
+  Test SQUANK,
+  for adaptive Simpson quadrature.
+ 
+  Error tolerance ERROR =   0.100000E-02
+ 
+            NO      SQUANK          EXACT           ERROR       RUM
+ 
+   1        53    0.663511        0.666667        0.32E-02    0.10E-02
+   2        57    0.479410        0.479428        0.19E-04    0.10E-02
+   3        57     1.58212         1.58223        0.11E-03    0.10E-02
+   4        49    0.400027        0.400000        0.27E-04    0.11E-02
+   5        53    0.866986        0.866973        0.13E-04    0.10E-02
+   6        81     1.15483         1.15470        0.13E-03    0.10E-02
+   7        25    0.777996        0.777505        0.49E-03    0.15E-02
+   8       429    0.907570E-02    0.909865E-02    0.23E-04    0.80E-02
+   9        53    0.499446        0.499364        0.83E-04    0.11E-02
+  10        45    0.906836        0.838676        0.68E-01    0.10E-02
+  11       101   -0.999122        -1.00000        0.88E-03    0.18E-02
+  12       209   -0.634674       -0.634665        0.93E-05    0.10E-02
+  13        29    0.898064E-02    0.134925E-01    0.45E-02    0.10E-02
+ 
+  Error tolerance ERROR =   0.100000E-04
+ 
+            NO      SQUANK          EXACT           ERROR       RUM
+ 
+   1       109    0.666664        0.666667        0.30E-05    0.16E-04
+   2        57    0.479410        0.479428        0.19E-04    0.49E-04
+   3        73     1.58225         1.58223        0.16E-04    0.41E-04
+   4        57    0.399975        0.400000        0.25E-04    0.63E-04
+   5        57    0.866982        0.866973        0.89E-05    0.28E-04
+   6       209     1.15470         1.15470        0.54E-06    0.10E-04
+   7        49    0.777512        0.777505        0.72E-05    0.25E-04
+   8      1469    0.909842E-02    0.909865E-02    0.22E-06    0.54E-04
+   9       213    0.499364        0.499364        0.16E-07    0.10E-04
+  10       221    0.838677        0.838676        0.86E-06    0.12E-04
+  11       193   -0.999992        -1.00000        0.82E-05    0.23E-04
+  12       741   -0.634665       -0.634665        0.17E-06    0.21E-04
+  13        89    0.134976E-01    0.134925E-01    0.51E-05    0.10E-04
+ 
+  Error tolerance ERROR =   0.100000E-06
+ 
+            NO      SQUANK          EXACT           ERROR       RUM
+ 
+   1       225    0.666664        0.666667        0.28E-05    0.61E-05
+   2        69    0.479409        0.479428        0.20E-04    0.39E-04
+   3       145     1.58225         1.58223        0.16E-04    0.31E-04
+   4        85    0.399974        0.400000        0.26E-04    0.53E-04
+   5        89    0.866982        0.866973        0.90E-05    0.18E-04
+   6       721     1.15470         1.15470        0.13E-06    0.10E-06
+   7        49    0.777512        0.777505        0.72E-05    0.15E-04
+   8      4461    0.909864E-02    0.909865E-02    0.75E-08    0.30E-06
+   9       565    0.499363        0.499364        0.42E-06    0.11E-06
+  10       565    0.838677        0.838676        0.98E-06    0.21E-05
+  11       653    -1.00000        -1.00000        0.16E-05    0.37E-05
+  12      2169   -0.634665       -0.634665        0.30E-08    0.24E-06
+  13       321    0.134925E-01    0.134925E-01    0.27E-08    0.10E-06
+ 
+TOMS379_PRB
+  Normal end of execution.
+ 
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      FUNCTION SQUANK ( A, BIG, ERROR, FIFTH, RUM, NO, FUN )
+C
+C  S*Q*U*A*N*K STANDS FOR SIMPSON QUADRATURE USED ADAPTIVELY, NOISE KILLED.
+C
+C  CALLING PROGRAM REQUIRES:
+C
+C    A      THE LOWER LIMIT OF INTEGRATION;
+C    BIG    THE UPPER LIMIT;
+C    ERROR  THE REQUIRED TOLERANCE (ABSOLUTE ERROR);
+C    FUN    THE EXTERNAL FUNCTION TO BE INTEGRATED.
+C
+C  OUTPUT:
+C
+C    SQUANK THE FIFTH ORDER RESULT = THIRD + FIFTH;
+C    FIFTH  THE FIFTH ORDER ADJUSTMENT TERM;
+C    RUM    THE CLAIMED TOLERANCE (ADJUSTED FOR ROUNDOFF ERROR).
+C    NO     THE NUMBER OF FUNCTION EVALUATIONS REQUIRED.
+C
+C  NOTES ON USE.  (1) DISCONTINUOUS FUNCTIONS.
+C
+C    THIS ROUTINE IS BASED ON DEGREE 3 AND DEGREE 5 LOCAL POLYNOMIAL APPROX-
+C    IMATION.  CONSEQUENTLY, IT SHOULD NOT BE USED WITH FUNCTIONS WHICH HAVE
+C    DISCONTINUITIES IN THE FOURTH OR LOWER DERIVATIVES WITHIN THE INTERVAL OF
+C    INTEGRATION.  IF THERE ARE SUCH DISCONTINUITIES, THIS ROUTINE WILL TAKE
+C    THIS TO BE EVIDENCE OF ROUND OFF ERROR IN FUNCTION VALUES, AND WILL ADJUST
+C    THE TOLERANCE.
+C
+C    IF THE LOCATIONS OF SUCH DISCONTINUITIES ARE KNOWN, THE ROUTINE MAY
+C    BE USED SEPARATELY FOR EACH INTERVAL BETWEEN CONSECUTIVE DISCONTINUITIES.
+C    WHILE, LIKE ALL SUCH ROUTINES, IT DISLIKES DISCONTINUITIES, IT CAN HANDLE
+C    THEM IF THEY ARE LOCATED AT THE END POINTS OF THE INTEGRATION INTERVAL.
+C
+C  NOTES ON USE.  (2) FUNCTIONS WITH HIGH-FREQUENCY OSCILLATIONS.
+C
+C    THE ROUTINE WILL RETURN UNRELIABLE RESULTS FOR FUNCTIONS LIKE G(X)
+C    TIMES COS(100*X).  IF THE HIGHEST PERIOD LIKELY TO BE ENCOUNTERED IS
+C    KNOWN, THE INTERVAL SHOULD BE SUBDIVIDED IN SUCH A WAY THAT,
+C      (ONE) THERE ARE NOT MORE THAN THREE PERIODS PER INTERVAL, AND
+C      (TWO), THE PERIOD *P* DIVIDED BY THE SUBINTERVAL, *(B-A)*, IS NOT A
+C    SIMPLE FRACTION *N/M* WITH N OR M LESS THAN 9.
+C
+C  NOTES ON USE.  (3)  INTERVAL SUB-DIVISION.
+C
+C    THE FAILURES DESCRIBED ABOVE ARE GENERALLY WORSE FOR *SQUANK* THAN FOR
+C    OTHER ROUTINES BECAUSE *SQUANK* TAKES THE INCONVENIENT BEHAVIOR AS AN
+C    INDICATION OF ROUND OFF ERROR.  IN GENERAL, SUB-DIVISION OF THE INTERVAL IS
+C    ADVOCATED.  ESSENTIALLY, THE USER CARRIES OUT, UNDER DRIVING PROGRAM
+C    CONTROL, A SEQUENCE OF CALCULATIONS WHICH SHOULD HAVE BEEN CARRIED OUT
+C    IN THE SUBROUTINE IN ANY CASE.  IN THIS WAY, HE PREVENTS CHANCE LOW ORDER
+C    FALSE CONVERGENCE AT VIRTUALLY NO ADDITIONAL COST.  NOTE THAT THE SUM OF
+C    THE PARAMETERS *ERROR* FOR THE SUB-INTERVALS SHOULD CORRESPOND TO THE
+C    VALUE REQUIRED FOR THE WHOLE INTERVAL.
+C
+C  NIM NUMBERING SYSTEM AND LOGIC.
+C
+C    THE INTERVAL (A,B) IS DEFINED NIM = 1, LEVEL = 0.
+C    THE INTERVAL NIM = N, LEVEL = L, IS BISECTED, IF NECESSARY, INTO
+C    TWO INTERVALS, NIM = 2*N AND NIM = 2*N+1, BOTH AT LEVEL = L+1.
+C    IF INTERVAL NIM = N, LEVEL = L DOES NOT CONVERGE, THE NEXT INTERVAL
+C    CONSIDERED IS NIM = 2*N, LEVEL = L+1.
+C    IF INTERVAL NIM = N, LEVEL = L DOES CONVERGE, THE NEXT INTERVAL CONSIDERED
+C    IS NIM = M(R)+1, LEVEL = L-R, WHERE M(R) IS THE FIRST
+C    EVEN MEMBER OF THE SEQUENCE M(Q) = N, M(S+1) = (M(S)-1)/2.  IF THIS
+C    GIVES LEVEL = 0, THE CALCULATION IS COMPLETE.
+C
+C  SCALING TO AVOID EXCESSIVE DIVISION BY TWO.
+C
+C    THE INTERVAL (X1,X5) IS OF LENGTH H = X5-X1.  THE POINTS X1, X2, X3, X4, X5
+C    ARE THE POINTS OF QUARTERSECTION OF THIS INTERVAL AND FX1, FX2, FX3, FX4, 
+C    FX5 ARE THE CORRESPONDING FUNCTION VALUES.
+C    EST IS APPROXIMATION TO (6.0/H)*INTEGRAL(X1,X5).
+C    (EST1+EST2) IS APPROXIMATION TO (12.0/H)*INTEGRAL(X1,X5).
+C    SUM IS APPROXIMATION TO (12.0)*INTEGRAL(A,X1).
+C
+C  STORAGE.
+C
+C    X3ST(L) = 0.5*(X5ST(L) + X1).  THUS, X3ST(L) COULD BE RECALCULATED
+C    AT EACH STAGE TO AVOID STORAGE.  ESTST(L) IS SAME IN THIS RESPECT.
+C    THE RESULTS OF ABOVE RECALCULATIONS ARE IDENTICAL MACHINE NUMBERS.
+C
+C    X5ST(L) = X1+(B-A)*(2**(-L)).  THIS COULD ALSO BE RECALCULATED.  BUT
+C    IN THIS CASE, CALCULATION IS EXCESSIVE AND THERE IS A POSSIBILITY OF
+C    ROUND OFF ERROR ARISING BECAUSE THE SAME POINT IS BEING CALCULATED
+C    IN TWO OR MORE DIFFERENT WAYS.
+C
+C  AVOIDANCE OF ROUND OFF ERROR TROUBLE.
+C
+C    IF INTERVAL DOES NOT CONVERGE, FOLLOWING INTERVAL SHOULD HAVE ADIFF
+C    VALUE APPROXIMATELY EQUAL TO (1/16) TIMES PREVIOUS ADIFF VALUE, CALLED
+C    ADIFF1 IN THE CODE.  THERE IS A THEOREM WHICH STATES THAT, UNLESS THE
+C    FOURTH DERIVATIVE OF FUN(X) VANISHES IN THE PREVIOUS INTERVAL, ADIFF
+C    IS LESS THAN OR EQUAL TO ADIFF1.  IF THIS DOES NOT HAPPEN, IT IS TAKEN
+C    TO BE AN INDICATION OF POSSIBLE ROUND OFF LEVEL.  IN THIS CASE,
+C    UNLESS LEV IS LESS THAN FIVE, THE CURRENT TOLERANCE LEVEL, CEPS,
+C    IS APPROPRIATELY ADJUSTED.  HOWEVER CEPS IS RESET AS AND WHEN
+C    APPEARS THAT IT SHOULD BE ADJUSTED EITHER UP OR DOWN.  IT IS REDUCED
+C    IF CONVERGENCE OCCURS WITH A NONZERO ADIFF STRICTLY LESS THAN
+C    0.25*CEPS.  AN INVOLVED SECTION OF CODING GUARDS TO SOME EXTENT AGAINST
+C    AN UNDOUBLE PRECISIONISTIC VALUE ARISING AS A RESULT OF A ZERO IN THE FOURTH
+C    DERIVATIVE.  A FACTOR EFACT IS CALCULATED WHICH ADJUSTS THE CLAIMED
+C    TOLERANCE TO TAKE INTO ACCOUNT THESE ALTERATIONS IN THE TOLERANCE LEVEL.
+C
+C    THE ROUTINE ENTERS THESE INVOLVED SECTIONS OF CODING ONLY IF ROUND
+C    OFF ERROR APPEARS TO BE PRESENT.  IN A NORMAL (ROUND OFF ERROR FREE)
+C    RUN, THESE SECTIONS ARE SKIPPED AT A COST OF A SINGLE COMPARISON PER
+C    ITERATION (TWO FUNCTION EVALUATIONS).
+C
+C  ARBITRARY CONSTANTS.
+C
+C    THE FOLLOWING CONSTANTS HAVE BEEN ASSIGNED IN THE LIGHT OF EXPERIENCE
+C    WITH NO THEORETICAL JUSTIFICATION.
+C
+C    (1) NO CONVERGENCE IS ALLOWED AT LEVEL **ZERO**.  THIS MEANS THAT THE
+C    ROUTINE IS CONSTRAINED TO BASE THE RESULT ON AT LEAST 9 FUNCTION VALUES.
+C
+C    (2) NO UPWARD ADJUSTMENT OF THE TOLERANCE LEVEL IS CONSIDERED AT LEVELS
+C    LOWER THAN LEVEL **FIVE**.  THE OINT SPACING IS THEN (BIG-A)/128.0.
+C
+C    (3) PHYSICAL LIMIT.  HIGHEST LEVEL ALLOWED IS LEVEL = **THIRTY**.  HERE
+C    CONVERGENCE IS ASSIGNED WHETHER OR NOT THE INTERVAL HAS CONVERGED.  THE
+C    POINT SPACING IS THEN ABOUT (BIG-A)*2.0*10**(-10).
+C
+C    (4) UPWARD ADJUSTMENT OF TOLERANCE LEVEL IS LIMITED IN GENERAL TO
+C    A FACTOR OF **2.0** OR LESS.
+C
+C    (5) DOWNWARD ADJUSTMENT OF TOLERANCE LEVEL IS INHIBITED IN GENERAL UNLESS
+C    BY A FACTOR GREATER THAN **4.0**.
+C
+C  SOME NOTATION.
+C
+C    SUM AND SIM ARE RUNNING SUMS.  INCREASED AT STAGE EIGHT, THEY ARE
+C    RESPECTIVELY 12.0 * ( THIRD ORDER APPROXIMATION TO THE INTEGRAL )
+C    AND -180.0 * ( FIFTH ORDER ADJUSTMENT TO THE INTEGRAL).
+C
+C    CEPSF IS THE REQUIRED (SCALED) TOLERANCE.
+C
+C    CEPS IS THE RUNNING VALUE OF THE ADJUSTED TOLERANCE.
+C
+C    QCEPS = 0.25 * CEPS.
+C
+C    LEVTAG = -1 OR 0, 2, 3, INDICATES WHETHER TOLERANCE IS NOT OR IS
+C    CURRENTLY ADJUSTED.  (SEE COMMENT IN STAGE SEVEN).
+C
+C    EFACT IS RUNNING SUM CORRESPONDING TO 180.0 * RUN.
+C
+C    FACERR = 15.0 OR 1.0, DEPENDING ON WHETHER TOLERANCE IS OR IS NOT
+C    CURRENTLY ADJUSTED.  IF IT IS, THERE IS NO JUSTIFICATION FOR THE
+C    FIFTH ORDER ADJUSTMENT AND ACCURACY IS NOT EXPECTED TO BE (1/15) TIMES
+C    DIFFERENCE OF APPROXIMATIONS.  FACERR = 15.0 REMOVES THE BUILT-IN 15.0
+C    FACTOR FOR CALCULATION OF EFACT.
+C
+C    EPMACH, THE MACHINE ACCURACY PARAMETER.  THE ROUND OFF ERROR GUARD DOES
+C    NOT REQUIRE THIS NUMBER.  IT IS MACHINE INDEPENDENT.  THIS IS ONLY
+C    USED TO HELP IN AN INITIAL GUESS IN STAGE TWO IF THE VALUE OF ERROR
+C    HAPPENS TO BE ZERO.  ANY NON-ZERO NUMBER MAY BE USED INSTEAD, WITH A
+C    VERY SMALL PENALTY IN NUMBER OF FUNCTION EVALUATIONS IF A COMPLETELY
+C    UNREASONABLE NUMBER IS USED.
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION ADIFF
+      DOUBLE PRECISION ADIFF1
+      DOUBLE PRECISION BIG
+      DOUBLE PRECISION CEPS
+      DOUBLE PRECISION CEPSF
+      DOUBLE PRECISION CEPST
+      DOUBLE PRECISION CRIT
+      DOUBLE PRECISION DIFF
+      DOUBLE PRECISION EFACT
+      DOUBLE PRECISION EPMACH
+      DOUBLE PRECISION ERROR
+      DOUBLE PRECISION EST
+      DOUBLE PRECISION EST1
+      DOUBLE PRECISION EST2
+      DOUBLE PRECISION ESTST(30)
+      DOUBLE PRECISION FACERR
+      DOUBLE PRECISION FIFTH
+      DOUBLE PRECISION FUN
+      DOUBLE PRECISION FX1
+      DOUBLE PRECISION FX2
+      DOUBLE PRECISION FX3
+      DOUBLE PRECISION FX3ST(30)
+      DOUBLE PRECISION FX4
+      DOUBLE PRECISION FX5
+      DOUBLE PRECISION FX5ST(30)
+      INTEGER LEV
+      INTEGER LEVTAG
+      INTEGER NIM
+      INTEGER NO
+      INTEGER NOM
+      INTEGER NUM
+      DOUBLE PRECISION PREDIF(30)
+      DOUBLE PRECISION QCEPS
+      DOUBLE PRECISION RUM
+      DOUBLE PRECISION SIM
+      DOUBLE PRECISION SQUANK
+      DOUBLE PRECISION SUM
+      DOUBLE PRECISION THIRD
+      DOUBLE PRECISION X1
+      DOUBLE PRECISION X2
+      DOUBLE PRECISION X3
+      DOUBLE PRECISION X3ST(30)
+      DOUBLE PRECISION X4
+      DOUBLE PRECISION X5
+      DOUBLE PRECISION X5ST(30)
+      DOUBLE PRECISION XZERO
+
+      EPMACH = 0.0000000000075D+00
+C
+C  STAGE ONE
+C  INITIALIZE ALL QUANTITIES REQUIRED FOR CENTRAL CALCULATION (STAGE 3).
+C
+      SUM = 0.0D+00
+      SIM = 0.0D+00
+      CEPSF = 180.0D+00 * ERROR / ( BIG - A )
+      CEPS = CEPSF
+      ADIFF = 0.0D+00
+      LEVTAG = -1
+      FACERR = 1.0D+00
+      XZERO = A
+      EFACT = 0.0D+00
+      NIM = 1
+      LEV = 0
+C
+C  FIRST INTERVAL.
+C
+      X1 = A
+      X5 = BIG
+      X3 = 0.5D+00 * ( A + BIG )
+      FX1 = FUN ( X1 )
+      FX3 = FUN ( X3 )
+      FX5 = FUN ( X3 )
+      NO = 3
+      EST = FX1 + FX5 + 4.0D+00 * FX3
+C
+C  STAGE TWO
+C  SET A STARTING VALUE FOR TOLERANCE IN CASE THAT CEPSF = 0.0.
+C
+      IF ( CEPSF ) 295, 205, 295
+205   LEVTAG = 0
+      FACERR = 15.0D+00
+      CEPS = EPMACH * ABS ( FX1 )
+      IF ( FX1 ) 295, 210, 295
+210   CEPS = EPMACH * ABS ( FX3 )
+      LEVTAG = 3
+      IF ( FX3 ) 295, 215, 295
+215   CEPS = EPMACH * ABS ( FX5 )
+      IF ( FX5 ) 295, 220, 295
+220   CEPS = EPMACH
+295   QCEPS = 0.25D+00 * CEPS
+C
+C  INITIALIZING COMPLETE.
+C
+C  STAGE THREE
+C  CENTRAL CALCULATION.
+C  REQUIRED X1, X3, X5, FX1, FX3, FX5, EST, ADIFF.
+C
+300   CONTINUE
+      X2 = 0.5D+00 * ( X1 + X3 )
+      X4 = 0.5D+00 * ( X3 + X5 )
+      FX2 = FUN ( X2 )
+      FX4 = FUN ( X4 )
+      NO = NO + 2
+      EST1 = FX1 + 4.0D+00 * FX2 + FX3
+      EST2 = FX3 + 4.0D+00 * FX4 + FX5
+      ADIFF1 = ADIFF
+      DIFF = EST + EST - EST1 - EST2
+      IF ( LEV - 30 ) 305, 800, 800
+305   ADIFF = ABS ( DIFF )
+      CRIT = ADIFF - CEPS
+      IF ( CRIT ) 700, 700, 400
+C
+C  END OF CENTRAL LOOP.
+C  NEXT STAGE IS STAGE FOUR IN CASE OF NO NATURAL CONVERGENCE.
+C  NEXT STAGE IS STAGE SEVEN IN CASE OF NATURAL CONVERGENCE.
+C
+C  STAGE FOUR.
+C  NO NATURAL CONVERGENCE.  A COMPLEXT SEQUENCE OF INSTRUCTIONS
+C  FOLLOWS WHICH ASSIGNS CONVERGENCE AND/OR ALTERS TOLERANCE
+C  LEVEL IN UPWARD DIRECTION IF THERE ARE INDICATIONS OF ROUND OFF
+C  ERROR.
+C
+400   CONTINUE
+      IF ( ADIFF1 - ADIFF ) 410, 410, 500
+C
+C  IN A NORMAL RUN WITH NO ROUND OFF ERROR PROBLEM, ADIFF1 IS GREATER THAN
+C  ADIFF, AND THE REST OF STAGE FOUR IS OMITTED.
+C
+410   IF ( LEV - 5 ) 500, 415, 415
+415   EFACT = EFACT + CEPS * ( X1 - XZERO ) * FACERR
+      XZERO = X1
+      FACERR = 15.0D+00
+C
+C  THE REST OF STAGE FOUR DEALS WITH UPWARD ADJUSTMENT OF TOLERANCE (CEPS)
+C  BECAUSE OF SUSPECTED ROUND OFF ERROR TROUBLE.
+C
+      IF(ADIFF-2.0*CEPS)420, 420, 425
+C SMALL JUMP in CEPS ASSIGN CONVERGENCE
+420   CEPS = ADIFF
+      LEVTAG = 0
+      GO TO 780
+425   IF ( ADIFF1 - ADIFF ) 435, 430, 435
+C
+C  LARGE JUMP IN CEPS.
+C
+430   CEPS = ADIFF
+      GO TO 445
+C
+C  FACTOR TWO JUMP IN CEPS.
+C
+435   CEPS = 2.0D+00 * CEPS
+      IF ( LEVTAG - 3 ) 440, 445, 445
+440   LEVTAG = 2
+445   QCEPS = 0.25D+00 * CEPS
+C
+C  STAGE FIVE
+C  NO ACTUAL CONVERGENCE.  STORE RIGHT HAND ELEMENTS.
+C
+500   CONTINUE
+      NIM = 2 * NIM
+      LEV = LEV + 1
+      ESTST(LEV) = EST2
+      X3ST(LEV) = X4
+      X5ST(LEV) = X5
+      FX3ST(LEV) = FX4
+      FX5ST(LEV) = FX5
+      PREDIF(LEV) = ADIFF
+C
+C  STAGE SIX
+C  SET UP QUANTITIES FOR CENTRAL CALCULATION.
+C
+C  READY TO GO AHEAD AT LEVEL LOWER WITH LEFT HAND ELEMENTS.
+C  X1 AND FX1 ARE THE SAME AS BEFORE.
+C
+      X5 = X3
+      X3 = X2
+      FX5 = FX3
+      FX3 = FX2
+      EST = EST1
+      GO TO 300
+C
+C  STAGE SEVEN.
+C  NATURAL CONVERGENCE IN PREVIOUS INTERVAL.  THE FOLLOWING COMPLEX SEQUENCE
+C  CHECKS PRIMARILY THAT TOLERANCE LEVEL IS NOT TOO HIGH.  UNDER CERTAIN
+C  CIRCUMSTANCES, NONCONVERGENCE IS ASSIGNED AND/OR TOLERANCE LEVEL
+C  IS RESET.
+C
+700   CONTINUE
+C
+C  CHECK THAT IT WAS NOT LEVEL ZERO INTERVAL.  IF SO, ASSIGN NONCONVERGENCE.
+C
+      IF ( LEV ) 400, 400, 705
+C
+C  LEVTAG = -1, CEPS = CEPSF, ITS ORIGINAL VALUE.
+C  LEVTAG =  0, CEPS IS GREATER THAN CEPSF, REGULAR SITUATION.
+C  LEVTAG =  2, CEPS IS GREATER THAN CEPSF.  CEPS PREVIOUSLY ASKED FOR A BIG
+C               JUMP, BUT DID NOT GET ONE.
+C  LEVTAG =  3, CEPS IS GREATER THAN CEPSF.  CEPS PREVIOUSLY HAD A BIG JUMP.
+C
+705   IF ( LEVTAG ) 800, 710, 710
+C
+C  IN A NORMAL RUN WITH NO ROUND OFF ERROR PROBLEM, LEVTAG = -1, AND THE
+C  REST OF STAGE SEVEN IS OMITTED.
+C
+710   CEPST = 15.0D+00 * CEPS
+C
+C  CEPST HERE IS FACERR * CURRENT VALUE OF CEPS.
+C
+      IF ( CRIT ) 715, 800, 800
+715   IF ( LEVTAG - 2 ) 720, 740, 750
+C
+C  LEVTAG = 0.
+C
+720   IF ( ADIFF ) 800, 800, 725
+725   IF ( ADIFF - QCEPS ) 730, 800, 800
+730   IF ( ADIFF - CEPSF ) 770, 770, 735
+735   LEVTAG = 0
+      CEPS = ADIFF
+      EFACT = EFACT + CEPST * ( X1 - XZERO )
+      XZERO = X1
+      GO TO 445
+C
+C  LEVTAG = 2.
+C
+740   LEVTAG = 0
+      IF ( ADIFF ) 765, 765, 725
+C
+C  LEVTAG = 3.
+C
+750   LEVTAG = 0
+      IF ( ADIFF ) 775, 775, 730
+765   CEPS = ADIFF1
+      GO TO 775
+770   LEVTAG = -1
+      FACERR = 1.0D+00
+      CEPS = CEPSF
+775   EFACT = EFACT + CEPST * ( X1 - XZERO )
+      XZERO = X1
+780   CONTINUE
+      QCEPS = 0.25D+00 * CEPS
+C
+C  STAGE EIGHT.
+C  ACTUAL CONVERGENCE IN PREVIOUS INTERVAL.  INCREMENTS ADDED INTO
+C  RUNNING SUMS.
+C
+C  ADD INTO SUM AND SIM
+C
+800   CONTINUE
+      SUM = SUM + ( EST1 + EST2 ) * ( X5 - X1 )
+      IF ( LEVTAG ) 805, 810, 810
+C
+C  WE ADD INTO SIM ONLY IF WE ARE CLEAR OF ROUND OFF LEVEL.
+C
+805   SIM = SIM + DIFF * ( X5 - X1 )
+810   CONTINUE
+C
+C  STAGE NINE.
+C  SORT OUT WHICH LEVEL TO GO TO.  THIS INVOLVES NIM NUMBERING SYSTEM
+C  DESCRIBED BEFORE STAGE ONE.
+C
+905   NUM = NIM / 2
+      NOM = NIM - 2 * NUM
+      IF ( NOM ) 910, 915, 910
+910   NIM = NUM
+      LEV = LEV - 1
+      GO TO 905
+915   NIM = NIM + 1
+C
+C  NEW LEVEL IS SET.  IF LEV = 0, WE HAVE FINISHED.
+C
+      IF ( LEV ) 1100, 1100, 1000
+C
+C  STAGE TEN
+C  SET UP QUANTITIES FOR CENTRAL CALCULATION.
+C
+1000  CONTINUE
+      X1 = X5
+      FX1 = FX5
+      X3 = X3ST(LEV)
+      X5 = X5ST(LEV)
+      FX3 = FX3ST(LEV)
+      FX5 = FX5ST(LEV)
+      EST = ESTST(LEV)
+      ADIFF = PREDIF(LEV)
+      GO TO 300
+C
+C  STAGE ELEVEN.
+C  CALCULATION NOW COMPLETE.  FINALIZE.
+C
+1100  CONTINUE
+
+      EFACT = EFACT + CEPS * ( BIG - XZERO ) * FACERR
+      RUM = EFACT / 180.0D+00
+      THIRD = SUM / 12.0D+00
+      FIFTH = -SIM / 180.0D+00
+      SQUANK = THIRD + FIFTH
+      RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

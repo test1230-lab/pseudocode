@@ -1,0 +1,283 @@
+C      ALGORITHM 452, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 16, NO. 8, August, 1973, P.485.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Thu Dec 15 13:28:11 2005
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS452_PRB tests NXCBN.
+c
+      implicit none
+
+      integer i
+      integer ic(10)
+      integer j
+      integer m
+      integer n
+      integer number
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS452_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 452, which generates'
+      write ( *, '(a)' ) '  combinations of M things from a set of N.'
+
+      n = 10
+      m = 3
+      number = 5
+
+      do i = 1, n
+        if ( i <= m ) then
+          ic(i) = 1
+        else
+          ic(i) = 0
+        end if
+      end do
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,i2)' ) '  Let N = ', n
+      write ( *, '(a,i2)' ) '  and M = ', m
+      write ( *, '(a,i2,a)' ) '  Generate ', number, ' combinations.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Initial combination:'
+      write ( *, '(a)' ) ' '
+      write ( *, '(2x,10i1)' ) ( ic(i), i = 1, n )
+      write ( *, '(a)' ) ' '
+
+      do j = 1, number
+        call nxcbn ( n, m, ic )
+        write ( *, '(2x,10i1)' ) ( ic(i), i = 1, n )
+      end do
+
+      n = 5
+      m = 2
+      number = 15
+
+      do i = 1, n
+        if ( i <= m ) then
+          ic(i) = 1
+        else
+          ic(i) = 0
+        end if
+      end do
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,i2)' ) '  Let N = ', n
+      write ( *, '(a,i2)' ) '  and M = ', m
+      write ( *, '(a,i2,a)' ) '  Generate ', number, ' combinations.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Initial combination:'
+      write ( *, '(a)' ) ' '
+      write ( *, '(2x,10i1)' ) ( ic(i), i = 1, n )
+      write ( *, '(a)' ) ' '
+
+      do j = 1, number
+        call nxcbn ( n, m, ic )
+        write ( *, '(2x,10i1)' ) ( ic(i), i = 1, n )
+      end do
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS452_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      stop
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS452_PRB
+  Test TOMS algorithm 452, which generates
+  combinations of M things from a set of N.
+ 
+  Let N = 10
+  and M =  3
+  Generate  5 combinations.
+ 
+  Initial combination:
+ 
+  1110000000
+ 
+  1010000001
+  1010000010
+  1010000100
+  1010001000
+  1010010000
+ 
+  Let N =  5
+  and M =  2
+  Generate 15 combinations.
+ 
+  Initial combination:
+ 
+  11000
+ 
+  10100
+  10010
+  10001
+  00011
+  00110
+  00101
+  01100
+  01010
+  01001
+  11000
+  10100
+  10010
+  10001
+  00011
+  00110
+ 
+TOMS452_PRB
+  Normal end of execution.
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      SUBROUTINE NXCBN(N, M, IC)
+      INTEGER M, N, N1, J, NJ, J1, K1, K2, JP, I, I1
+C  EXPLANATION OF THE PARAMETERS IN THE CALLING SEQUENCE:
+C    N, THE TOTAL NUMBER OF OBJECTS.
+C    M, THE NUMBER OF OBJECTS TO BE TAKEN FROM N.
+C      IF M = 0, OR M>=N, EXIT WITH ARGUMENTS UNCHANGED.
+C    IC, AN INTEGER ARRAY.  IC CONTAINS AN N-DIMNSIONAL
+C      BINARY VECTOR WITH M ELEMENTS SET TO 1, REPRESENTING
+C      THE N OBJECTS IN A COMBINATION.
+C  THIS ALGORITHM IS PROGRAMMED IN ANSI STANDARD FORTRAN.
+      INTEGER IC(N)
+C  CHECK ENDING PATTERN OF VECTOR.
+      IF (M.GE.N .OR. M.EQ.0 ) GO TO 140
+      N1 = N - 1
+      DO 10 J=1,N1
+        NJ = N - J
+        IF (IC(N).EQ.IC(NJ)) GO TO 10
+        J1 = J
+        GO TO 20
+10    CONTINUE
+20    IF (MOD(M,2).EQ.1) GO TO 90
+C  FOR M EVEN.
+      IF ( IC(N).EQ.1 ) GO TO 30
+      K1 = N - J1
+      K2 = K1 + 1
+      GO TO 130
+30    IF (MOD(J1,2).EQ.1) GO TO 40
+      GO TO 120
+C  SCAN FROM RIGHT TO LEFT.
+40    JP = ( N - J1 ) - 1
+      DO 50 I=1,JP
+        I1 = JP + 2 - I
+        IF(IC(I1).EQ.0) GO TO 50
+        IF(IC(I1-1).EQ.1) GO TO 70
+        GO TO 80
+50    CONTINUE
+60    K1 = 1
+      K2 = ( N + 1 ) - M
+      GO TO 130
+70    K1 = I1 - 1
+      K2 = N - J1
+      GO TO 130
+80    K1 = I1 - 1
+      K2 = ( N + 1 ) - J1
+      GO TO 130
+C  FOR M ODD.
+90    IF (IC(N).EQ.1) GO TO 110
+      K2 = ( N - J1 ) - 1
+      IF ( K2 .EQ. 0 ) GO TO 60
+      IF ( IC(K2+1) .EQ. 1 .AND. IC(K2) .EQ. 1 ) GO TO 100
+      K1 = K2 + 1
+      GO TO 130
+100   K1 = N
+      GO TO 130
+110   IF ( MOD(J1,2) .EQ. 1 ) GO TO 120
+      GO TO 40
+120   K1 = N - J1
+      K2 = MIN0 ( ( K1 + 2 ), N )
+C  COMPLEMENTING TWO BITS TO OBTAIN THE NEXT COMBINATION.
+130   IC(K1) = 1 - IC(K1)
+      IC(K2) = 1 - IC(K2)
+140   RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

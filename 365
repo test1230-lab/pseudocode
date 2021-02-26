@@ -1,0 +1,486 @@
+C      ALGORITHM 365, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 12, NO. 12, December, 1969, PP.686--687.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Wed Jan 18 20:30:19 2006
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c*******************************************************************************
+c
+cc TOMS365_PRB tests the CRF routine.
+c
+c  Modified:
+c
+c    06 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS365_PRB:'
+      write ( *, '(a)' ) '  Test the ACM TOMS 365 Algorithm CRF.'
+
+      call test01
+      call test02
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS365_PRB:'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      write ( *, '(a)' ) ' '
+
+      stop
+      end
+      subroutine test01
+
+c*******************************************************************************
+c
+cc TEST01 tests CRF on the function F(Z) = Z + 1.
+c
+c  Modified:
+c
+c    08 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      real de
+      real dm
+      real ds
+      real he
+      real hm
+      real hs
+      complex f01
+      external f01
+      integer n
+      complex ze
+      complex zs
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01:'
+      write ( *, '(a)' ) '  CRF uses the downhill method to find' 
+      write ( *, '(a)' ) '  a root of a complex analytic function.'
+      write ( *, '(a)' ) '  Here, we use F(Z) = Z + 1.'
+
+      zs = ( 2.0E+00, 0.5E+00 )
+      hs = 0.25E+00
+      hm = 0.0001E+00
+      dm = 0.00001E+00
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,2g14.6)' ) '  Initial estimate ZS =     ', zs
+      write ( *, '(a,g14.6)' ) '  Initial stepsize HS =     ', hs
+      write ( *, '(a,g14.6)' ) '  Minimum stepsize HM =     ', hm
+      write ( *, '(a,g14.6)' ) '  Deviation tolerance DM =  ', dm
+
+      call crf ( zs, hs, hm, dm, f01, ds, ze, he, de, n )
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,2g14.6)' ) '  Final estimate ZE =       ', ze
+      write ( *, '(a,g14.6)' ) '  Final stepsize HE =       ', he
+      write ( *, '(a,g14.6)' ) '  Initial deviation DS =    ', ds
+      write ( *, '(a,g14.6)' ) '  Final deviation DE =      ', de
+      write ( *, '(a,i6)' ) '  Number of iterations, N = ', n
+
+      return
+      end
+      subroutine test02
+
+c*******************************************************************************
+c
+cc TEST02 tests CRF on the function F(Z) = Z**5 + 1.
+c
+c  Modified:
+c
+c    08 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      real de
+      real dm
+      real ds
+      real he
+      real hm
+      real hs
+      complex f02
+      external f02
+      integer n
+      complex ze
+      complex zs
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST02:'
+      write ( *, '(a)' ) '  CRF uses the downhill method to find' 
+      write ( *, '(a)' ) '  a root of a complex analytic function.'
+      write ( *, '(a)' ) '  Here, we use F(Z) = Z**5 + 1.'
+
+      zs = ( 2.0E+00, 0.5E+00 )
+      hs = 0.25E+00
+      hm = 0.0001E+00
+      dm = 0.00001E+00
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,2g14.6)' ) '  Initial estimate ZS =     ', zs
+      write ( *, '(a,g14.6)' ) '  Initial stepsize HS =     ', hs
+      write ( *, '(a,g14.6)' ) '  Minimum stepsize HM =     ', hm
+      write ( *, '(a,g14.6)' ) '  Deviation tolerance DM =  ', dm
+
+      call crf ( zs, hs, hm, dm, f02, ds, ze, he, de, n )
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,2g14.6)' ) '  Final estimate ZE =       ', ze
+      write ( *, '(a,g14.6)' ) '  Final stepsize HE =       ', he
+      write ( *, '(a,g14.6)' ) '  Initial deviation DS =    ', ds
+      write ( *, '(a,g14.6)' ) '  Final deviation DE =      ', de
+      write ( *, '(a,i6)' ) '  Number of iterations, N = ', n
+
+      return
+      end
+      function f01 ( z )
+
+c*******************************************************************************
+c
+cc F01 evaluates the function F(Z) = Z + 1.
+c
+c  Modified:
+c
+c    06 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Parameters:
+c
+c    Input, complex Z, the aergument.
+c
+c    Output, complex F01, the function value.
+c
+      implicit none
+
+      complex f01
+      complex z
+
+
+      f01 = z + 1.0E+00
+
+      return
+      end
+      function f02 ( z )
+
+c*******************************************************************************
+c
+cc F02 evaluates the function F(Z) = Z**5 + 1.
+c
+c  Modified:
+c
+c    06 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Parameters:
+c
+c    Input, complex Z, the aergument.
+c
+c    Output, complex F02, the function value.
+c
+      implicit none
+
+      complex f02
+      complex z
+
+      f02 = z**5 + 1.0E+00
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS365_PRB:
+  Test the ACM TOMS 365 Algorithm CRF.
+ 
+TEST01:
+  CRF uses the downhill method to find
+  a root of a complex analytic function.
+  Here, we use F(Z) = Z + 1.
+ 
+  Initial estimate ZS =        2.00000      0.500000    
+  Initial stepsize HS =       0.250000    
+  Minimum stepsize HM =       0.100000E-03
+  Deviation tolerance DM =    0.100000E-04
+ 
+  Final estimate ZE =        -0.999964     -0.123724E-04
+  Final stepsize HE =         0.610352E-04
+  Initial deviation DS =       3.50000    
+  Final deviation DE =        0.484928E-04
+  Number of iterations, N =     30
+ 
+TEST02:
+  CRF uses the downhill method to find
+  a root of a complex analytic function.
+  Here, we use F(Z) = Z**5 + 1.
+ 
+  Initial estimate ZS =        2.00000      0.500000    
+  Initial stepsize HS =       0.250000    
+  Minimum stepsize HM =       0.100000E-03
+  Deviation tolerance DM =    0.100000E-04
+ 
+  Final estimate ZE =         0.809016      0.587773    
+  Final stepsize HE =         0.610352E-04
+  Initial deviation DS =       48.6562    
+  Final deviation DE =        0.892002E-04
+  Number of iterations, N =     23
+ 
+TOMS365_PRB:
+  Normal end of execution.
+ 
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      SUBROUTINE CRF ( ZS, HS, HM, DM, FUNC, DS, ZE, HE, DE, N )
+C
+C  THE SUBROUTINE DETERMINES A ROOT OF A TRANSCEN-
+C  DENTAL COMPLEX EQUATION F(Z)=0 BY STEP-WISE ITE-
+C  RATION, (THE DOWN HILL METHOD).
+C
+C  INPUT-PARAMETERS.
+C
+C  ZS = START VALUE OF Z. (COMPLEX)
+C  HS = LENGTH OF STEP AT START.
+C  HM = MINIMUM LENGTH OF STEP.
+C  DM = MINIMUM DEVIATION.
+C
+C  SUBPROGRAM.
+C
+C  FUNC(Z), A COMPLEX FUNCTION SUBPROGRAM FOR THE
+C  CALCULATION OF THE VALUE OF F(Z) FOR A COMPLEX
+C  ARGUMENT Z.
+C
+C  OUTPUT-PARAMETERS.
+C
+C  DS = CABS(FUNC(ZS)) = DEVIATION AT START.
+C  ZE = END VALUE OF Z. (COMPLEX)
+C  HE = LENGTH OF STEP AT END.
+C  DE = CABS(FUNC(ZE)) = DEVIATION AT END.
+C  N  = NUMBER OF ITERATIONS.
+C
+C  RESTRICTIONS.
+C
+C  THE FUNCTION W=F(Z) MUST BE ANALYTICAL IN THE
+C  REGION WHERE ROOTS ARE SOUGHT.
+C
+      IMPLICIT NONE
+
+      COMPLEX A
+      COMPLEX CW
+      REAL DE
+      REAL DM
+      REAL DS
+      COMPLEX FUNC
+      REAL H
+      REAL HE
+      REAL HM
+      REAL HS
+      INTEGER I
+      INTEGER K
+      INTEGER N
+      INTEGER NR
+      COMPLEX U(7)
+      COMPLEX V
+      REAL W(3)
+      REAL W0
+      COMPLEX Z(3)
+      COMPLEX Z0
+      COMPLEX ZE
+      COMPLEX ZS
+
+      U(1) = (  1.0E+00, 0.0E+00 )
+      U(2) = (  0.8660254E+00, 0.5000000E+00 )
+      U(3) = (  0.0000000E+00, 1.0000000E+00 )
+      U(4) = (  0.9659258E+00, 0.2588190E+00 )
+      U(5) = (  0.7071068E+00, 0.7071068E+00 )
+      U(6) = (  0.2588190E+00, 0.9659258E+00 )
+      U(7) = ( -0.2588190E+00, 0.9659258E+00 )
+      H = HS
+      Z0 = ZS
+      N = 0
+C
+C  CALCULATION OF DS.
+C
+      CW = FUNC ( Z0 )
+      W0 = ABS ( REAL ( CW ) ) + ABS ( AIMAG ( CW ) )
+      DS = W0
+      IF ( W0 - DM ) 18, 18, 1
+1     K = 1
+      I = 0
+2     V = ( -1.0E+00, 0.0E+00 )
+C
+C  EQUILATERAL TRIANGLE WALK PATTERN.
+C
+3     A = ( -0.5E+00, 0.866E+00 )
+C
+C  CALCULATION OF DEVIATIONS W IN THE NEW TEST POINTS.
+C
+4     Z(1) = Z0 + H * V * A
+      CW = FUNC ( Z(1) )
+      W(1) = ABS ( REAL ( CW ) ) + ABS ( AIMAG ( CW ) )
+      Z(2) = Z0 + H * V
+      CW = FUNC ( Z(2) )
+      W(2) = ABS ( REAL ( CW ) ) + ABS ( AIMAG ( CW ) )
+      Z(3) = Z0 + H * CONJG ( A ) * V
+      CW = FUNC ( Z(3) )
+      W(3) = ABS ( REAL ( CW ) ) + ABS ( AIMAG ( CW ) )
+      N = N + 1
+C
+C  DETERMINATI0N OF W(NR), THE SMALLEST OF W(I).
+C
+      IF ( W(1) - W(3) ) 5, 5, 6
+5     IF ( W(1) - W(2) ) 7, 8, 8
+6     IF ( W(2) - W(3) ) 8, 8, 9
+7     NR = 1
+      GO TO 10
+8     NR = 2
+      GO TO 10
+9     NR = 3
+10    IF ( W0 - W(NR) ) 11, 12, 12
+11    GO TO ( 13, 14, 15 ), K
+12    K = 1
+      I = 0
+C
+C  FORWARD DIRECTED WALK PATTERN.
+C
+      A = ( 0.707E+00, 0.707E+00 )
+      V = ( Z(NR) - Z0 ) / H
+      W0 = W(NR)
+      Z0 = Z(NR)
+      IF ( W0 - DM ) 18, 18, 4
+13    K = 2
+C
+C  REDUCTION OF STEP LENGTH.
+C
+      IF ( H .LT. HM ) GO TO 18
+      H = H * 0.25E+00
+      GO TO 3
+14    K = 3
+C
+C  RESTORATION OF STEP LENGTH.
+C
+      H = H * 4.0E+00
+      GO TO 2
+15    I = I + 1
+C
+C  ROTATION OF WALK PATTERN.
+C
+      IF ( I - 7 ) 16, 16, 17
+16    V = U(I)
+      GO TO 3
+C
+C  REDUCTION OF STEP LENGTH.
+C
+17    IF ( H .LT. HM ) GO TO 18
+      H = H * 0.25E+00
+      I = 0
+      GO TO 2
+18    ZE = Z0
+      HE = H
+      DE = W0
+      RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

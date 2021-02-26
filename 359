@@ -1,0 +1,462 @@
+C      ALGORITHM 359, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 12, NO. 11, November, 1969, PP.631--632.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Drivers/
+#	Fortran/Sp/Drivers/Makefile
+#	Fortran/Sp/Drivers/driver.f
+#	Fortran/Sp/Drivers/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Fri Mar 10 09:33:48 2006
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS359_PRB tests TOMS359.
+c
+c  Modified:
+c
+c    11 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      call timestamp ( )
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS359_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 359, which computes'
+      write ( *, '(a)' ) '  the analysis of variance.'
+
+      call test01
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS359_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      write ( *, '(a)' ) ' '
+      call timestamp ( )
+
+      stop
+      end
+      subroutine test01
+
+c***********************************************************************
+c
+cc TEST01 tests DLGAMA.
+c
+c  Modified:
+c
+c    19 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer ncls
+      integer nfctr
+
+      parameter ( ncls = 12 )
+      parameter ( nfctr = 3 )
+
+      integer i
+      integer msize(nfctr)
+      real r_uniform_01
+      real row(3)
+      integer seed
+      real y(ncls)
+      real z(ncls)
+
+      data msize / 2, 2, 3 /
+
+      seed = 123456789
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01'
+      write ( *, '(a)' ) '  Test FNOVA'
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Y:'
+      write ( *, '(a)' ) ' '
+
+      do i = 1, ncls
+        y(i) = int ( 10.0E+00 * r_uniform_01 ( seed ) )
+        write ( *, '(2x,i2,2x,f10.6)' ) i, y(i)
+      end do
+
+      call fnova ( y, z, row, msize, ncls, nfctr )
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Z:'
+      write ( *, '(a)' ) ' '
+
+      do i = 1, ncls
+        write ( *, '(2x,i2,2x,f10.6)' ) i, z(i)
+      end do
+
+      return
+      end
+      subroutine timestamp ( )
+
+c*******************************************************************************
+c
+cc TIMESTAMP prints out the current YMDHMS date as a timestamp.
+c
+c  Discussion:
+c
+c    This FORTRAN77 version is made available for cases where the
+c    FORTRAN90 version cannot be used.
+c
+c  Modified:
+c
+c    16 September 2005
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Parameters:
+c
+c    None
+c
+      implicit none
+
+      character ( len = 8 ) date
+      character ( len = 10 ) time
+
+      call date_and_time ( date, time )
+
+      write ( *, '(a8,2x,a10)' ) date, time
+
+      return
+      end
+      function r_uniform_01 ( seed )
+
+c*******************************************************************************
+c
+cc R_UNIFORM_01 returns a unit single precision pseudorandom number.
+c
+c  Discussion:
+c
+c    This routine implements the recursion
+c
+c      seed = 16807 * seed mod ( 2**31 - 1 )
+c      r_uniform_01 = seed / ( 2**31 - 1 )
+c
+c    The integer arithmetic never requires more than 32 bits,
+c    including a sign bit.
+c
+c    If the initial seed is 12345, then the first three computations are
+c
+c      Input     Output      R_UNIFORM_01
+c      SEED      SEED
+c
+c         12345   207482415  0.096616
+c     207482415  1790989824  0.833995
+c    1790989824  2035175616  0.947702
+c
+c  Modified:
+c
+c    11 August 2004
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Paul Bratley, Bennett Fox, L E Schrage,
+c    A Guide to Simulation,
+c    Springer Verlag, pages 201-202, 1983.
+c
+c    Pierre L'Ecuyer,
+c    Random Number Generation,
+c    in Handbook of Simulation,
+c    edited by Jerry Banks,
+c    Wiley Interscience, page 95, 1998.
+c
+c    Bennett Fox,
+c    Algorithm 647:
+c    Implementation and Relative Efficiency of Quasirandom
+c    Sequence Generators,
+c    ACM Transactions on Mathematical Software,
+c    Volume 12, Number 4, pages 362-376, 1986.
+c
+c    P A Lewis, A S Goodman, J M Miller,
+c    A Pseudo-Random Number Generator for the System/360,
+c    IBM Systems Journal,
+c    Volume 8, pages 136-143, 1969.
+c
+c  Parameters:
+c
+c    Input/output, integer SEED, the "seed" value, which should NOT be 0.
+c    On output, SEED has been updated.
+c
+c    Output, real R_UNIFORM_01, a new pseudorandom variate,
+c    strictly between 0 and 1.
+c
+      implicit none
+
+      integer k
+      integer seed
+      real r_uniform_01
+
+      k = seed / 127773
+
+      seed = 16807 * ( seed - k * 127773 ) - k * 2836
+
+      if ( seed < 0 ) then
+        seed = seed + 2147483647
+      end if
+c
+c  Although SEED can be represented exactly as a 32 bit integer,
+c  it generally cannot be represented exactly as a 32 bit real number!
+c
+      r_uniform_01 = real ( dble ( seed ) * 4.656612875D-10 )
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS359_PRB
+  Test TOMS algorithm 359, which computes
+  the analysis of variance.
+ 
+TEST01
+  Test FNOVA
+ 
+  Y:
+ 
+   1    2.000000
+   2    9.000000
+   3    8.000000
+   4    5.000000
+   5    4.000000
+   6    0.000000
+   7    2.000000
+   8    1.000000
+   9    0.000000
+  10    6.000000
+  11    0.000000
+  12    4.000000
+ 
+  Z:
+ 
+   1   11.835680
+   2    0.353553
+   3    1.020620
+   4    0.866025
+   5   -4.596193
+   6   -1.837117
+   7    4.330127
+   8   -4.596194
+   9    0.612372
+  10    4.907477
+  11   -1.060660
+  12   -3.878359
+ 
+TOMS359_PRB
+  Normal end of execution.
+ 
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      SUBROUTINE FNOVA ( Y, Z, ROW, MSIZE, NCLS, NFCTR )
+C
+      IMPLICIT NONE
+
+      INTEGER NCLS
+      INTEGER NFCTR
+
+      INTEGER I
+      INTEGER J
+      INTEGER K
+      INTEGER KL1
+      INTEGER L
+      INTEGER MSIZE(NFCTR)
+      INTEGER NF
+      INTEGER NRNC
+      REAL ROW(*)
+      REAL Y(NCLS)
+      REAL Z(NCLS)
+C
+C  LOOP FOR NFCTR CONTRAST MATRICES.
+C
+      DO 5 NF = 1, NFCTR
+
+        I = 1
+C
+C  GET SIZE OF THE MATRIX.
+C
+        K = NFCTR - NF + 1
+        NRNC = MSIZE(K)
+
+        DO 3 J = 1, NRNC
+C
+C  ROW OF A CONTRAST MATRIX.
+C
+          CALL AROW ( ROW, NRNC, J )
+C
+C  PERFORM THE 'PAPER STRIP' OPERATION FOR A MATRIX ROW.
+C
+          DO 2 K = 1, NCLS, NRNC
+
+            Z(I) = 0.0E+00
+
+            DO 1 L = 1, NRNC
+              KL1 = K + L - 1
+              Z(I) = Z(I) + ROW(L) * Y(KL1)
+1     CONTINUE
+
+            I = I + 1
+2     CONTINUE
+
+3       CONTINUE
+C
+C  MOVE Z INTO Y.
+C
+        DO 4 J = 1, NCLS
+          Y(J) = Z(J)
+4     CONTINUE
+
+5     CONTINUE
+
+      DO 6 J = 1, NCLS
+        Y(J) = Y(J) * Y(J)
+6     CONTINUE
+
+      RETURN
+      END
+      SUBROUTINE AROW ( ROW, NRNC, J )
+
+      IMPLICIT NONE
+
+      INTEGER NRNC
+
+      REAL A
+      REAL EL
+      INTEGER I
+      INTEGER J
+      INTEGER JM1
+      REAL RJ
+      REAL ROW(NRNC)
+C
+C  IF ROW ONE:
+C
+      IF ( J - 1 ) 3, 1, 3
+1     A = NRNC
+      EL = 1.0E+00 / SQRT ( A )
+
+      DO 2 I = 1, NRNC
+        ROW(I) = EL
+2     CONTINUE
+C
+C  AND
+C
+      RETURN
+C
+C  ELSE
+C
+3     JM1 = J - 1
+      RJ = J
+      A = SQRT ( RJ * RJ - RJ )
+      EL = 1.0E+00 / A
+
+      DO 4 I = 1, JM1
+        ROW(I) = EL
+4     CONTINUE
+
+      DO 5 I = J, NRNC
+        ROW(I) = 0.0E+00
+5     CONTINUE
+
+      ROW(J) = ( 1.0E+00 - RJ ) / A
+
+      RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

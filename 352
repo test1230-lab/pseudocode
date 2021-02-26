@@ -1,0 +1,2855 @@
+C      ALGORITHM 352, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 12, NO. 7, July, 1969, PP.399--407.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Dp/
+#	Fortran/Dp/Drivers/
+#	Fortran/Dp/Drivers/Makefile
+#	Fortran/Dp/Drivers/driver.f
+#	Fortran/Dp/Drivers/res
+#	Fortran/Dp/Src/
+#	Fortran/Dp/Src/src.f
+# This archive created: Fri Mar 10 09:33:47 2006
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Dp'
+then
+	mkdir 'Dp'
+fi
+cd 'Dp'
+if test ! -d 'Drivers'
+then
+	mkdir 'Drivers'
+fi
+cd 'Drivers'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS352_PRB tests TOMS352.
+c
+c  Modified:
+c
+c    06 February 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS352_PRB'
+      write ( *, '(a)' ) '  Test TOMS algorithm 352, which finds the'
+      write ( *, '(a)' ) '  characteristic values and associated'
+      write ( *, '(a)' ) '  solutions of Matthieu''s differential'
+      write ( *, '(a)' ) '  equation.'
+
+      call test01
+      call test02
+      call test03
+      call test04
+      call test05
+      call test06
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS352_PRB'
+      write ( *, '(a)' ) '  Normal end of execution.'
+
+      write ( *, '(a)' ) ' '
+
+      stop
+      end
+      subroutine test01
+
+c***********************************************************************
+c
+cc TEST01 tests BESSEL.
+c
+c  Modified:
+c
+c    03 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer order_max
+      parameter ( order_max = 1 )
+
+      double precision fx
+      double precision fx2
+      double precision jy(250)
+      integer  n_data
+      integer sol
+      double precision x
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST01'
+      write ( *, '(a)' ) '  Test BESSEL, which can compute'
+      write ( *, '(a)' ) '  J0 Bessel functions.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '      X         Exact Value      Computed'
+      write ( *, '(a)' ) ' '
+
+      sol = 1
+      n_data = 0
+
+10    continue
+
+      call bessel_j0_values ( n_data, x, fx )
+
+      if ( n_data <= 0 ) then
+        go to 20
+      end if
+
+      call bessel ( sol, x, jy, order_max )
+
+      fx2 = jy(1)
+
+      write ( *, '(2x,f8.4,2x,g16.8,2x,g16.8)' ) x, fx, fx2
+
+      go to 10
+
+20    continue
+
+      return
+      end
+      subroutine test02
+
+c***********************************************************************
+c
+cc TEST02 tests BESSEL.
+c
+c  Modified:
+c
+c    28 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer order_max
+      parameter ( order_max = 1 )
+
+      double precision fx
+      double precision fx2
+      double precision jy(250)
+      integer  n_data
+      integer sol
+      double precision x
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST02'
+      write ( *, '(a)' ) '  Test BESSEL, which can compute'
+      write ( *, '(a)' ) '  J1 Bessel functions.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '      X         Exact Value      Computed'
+      write ( *, '(a)' ) ' '
+
+      sol = 1
+      n_data = 0
+
+10    continue
+
+      call bessel_j1_values ( n_data, x, fx )
+
+      if ( n_data <= 0 ) then
+        go to 20
+      end if
+
+      call bessel ( sol, x, jy, order_max )
+
+      fx2 = jy(2)
+
+      write ( *, '(2x,f8.4,2x,g16.8,2x,g16.8)' ) x, fx, fx2
+
+      go to 10
+
+20    continue
+
+      return
+      end
+      subroutine test03
+
+c***********************************************************************
+c
+cc TEST03 tests BESSEL.
+c
+c  Modified:
+c
+c    28 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer order_max
+      parameter ( order_max = 2 )
+
+      double precision fx
+      double precision fx2
+      double precision jy(250)
+      integer  n_data
+      integer sol
+      double precision x
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST03'
+      write ( *, '(a)' ) '  Test BESSEL, which can compute'
+      write ( *, '(a)' ) '  Y0 Bessel functions.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '      X         Exact Value      Computed'
+      write ( *, '(a)' ) ' '
+
+      sol = 2
+      n_data = 0
+
+10    continue
+
+      call bessel_y0_values ( n_data, x, fx )
+
+      if ( n_data <= 0 ) then
+        go to 20
+      end if
+
+      call bessel ( sol, x, jy, order_max )
+
+      fx2 = jy(1)
+
+      write ( *, '(2x,f8.4,2x,g16.8,2x,g16.8)' ) x, fx, fx2
+
+      go to 10
+
+20    continue
+
+      return
+      end
+      subroutine test04
+
+c***********************************************************************
+c
+cc TEST04 tests BESSEL.
+c
+c  Modified:
+c
+c    28 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer order_max
+      parameter ( order_max = 3 )
+
+      double precision fx
+      double precision fx2
+      double precision jy(250)
+      integer  n_data
+      integer sol
+      double precision x
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST04'
+      write ( *, '(a)' ) '  Test BESSEL, which can compute'
+      write ( *, '(a)' ) '  Y1 Bessel functions.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '      X         Exact Value      Computed'
+      write ( *, '(a)' ) ' '
+
+      sol = 2
+      n_data = 0
+
+10    continue
+
+      call bessel_y1_values ( n_data, x, fx )
+
+      if ( n_data <= 0 ) then
+        go to 20
+      end if
+
+      call bessel ( sol, x, jy, order_max )
+
+      fx2 = jy(2)
+
+      write ( *, '(2x,f8.4,2x,g16.8,2x,g16.8)' ) x, fx, fx2
+
+      go to 10
+
+20    continue
+
+      return
+      end
+      subroutine test05
+
+c***********************************************************************
+c
+cc TEST05 tests MFCVAL.
+c
+c  Modified:
+c
+c    04 February 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer r_max
+      parameter ( r_max = 20 )
+
+      double precision a
+      double precision a2
+      double precision cv(6,r_max)
+      integer j
+      integer  n_data
+      integer q
+      double precision q_dble
+      integer r
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST05'
+      write ( *, '(a)' ) '  Test MFCVAL, which can compute'
+      write ( *, '(a)' ) '  the eigenvalues and eigensolutions'
+      write ( *, '(a)' ) '  of Mathieu''s differential equation.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Here, we work with EVEN solutions.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 
+     &  '       R       Q      Exact Value      Computed'
+      write ( *, '(a)' ) ' '
+
+      n_data = 0
+
+10    continue
+
+      call mathieu_even_values ( n_data, r, q, a )
+
+      if ( n_data <= 0 ) then
+        go to 20
+      end if
+
+      q_dble = dble ( q )
+
+      call mfcval ( r+1, r, q_dble, cv, j )
+
+      a2 = cv(1,r+1)
+
+      write ( *, '(2x,i6,2x,i6,2x,g16.8,2x,g16.8)' ) r, q, a, a2
+
+      go to 10
+
+20    continue
+
+      return
+      end
+      subroutine test06
+
+c***********************************************************************
+c
+cc TEST06 tests MFCVAL.
+c
+c  Modified:
+c
+c    04 February 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+      implicit none
+
+      integer r_max
+      parameter ( r_max = 20 )
+
+      double precision a
+      double precision a2
+      double precision cv(6,r_max)
+      integer j
+      integer  n_data
+      integer q
+      double precision q_dble
+      integer r
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TEST06'
+      write ( *, '(a)' ) '  Test MFCVAL, which can compute'
+      write ( *, '(a)' ) '  the eigenvalues and eigensolutions'
+      write ( *, '(a)' ) '  of Mathieu''s differential equation.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  Here, we work with ODD solutions.'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 
+     &  '       R       Q      Exact Value      Computed'
+      write ( *, '(a)' ) ' '
+
+      n_data = 0
+
+10    continue
+
+      call mathieu_odd_values ( n_data, r, q, a )
+
+      if ( n_data <= 0 ) then
+        go to 20
+      end if
+
+      q_dble = dble ( q )
+
+      call mfcval ( r+1, r+1, q_dble, cv, j )
+
+      a2 = cv(1,r)
+
+      write ( *, '(2x,i6,2x,i6,2x,g16.8,2x,g16.8)' ) r, q, a, a2
+
+      go to 10
+
+20    continue
+
+      return
+      end
+      subroutine bessel_j0_values ( n_data, x, fx )
+
+c*******************************************************************************
+c
+cc BESSEL_J0_VALUES returns some values of the J0 Bessel function.
+c
+c  Discussion:
+c
+c    In Mathematica, the function can be evaluated by:
+c
+c      BesselJ[0,x]
+c
+c  Modified:
+c
+c    14 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Milton Abramowitz and Irene Stegun,
+c    Handbook of Mathematical Functions,
+c    US Department of Commerce, 1964.
+c
+c    Stephen Wolfram,
+c    The Mathematica Book,
+c    Fourth Edition,
+c    Wolfram Media / Cambridge University Press, 1999.
+c
+c  Parameters:
+c
+c    Input/output, integer N_DATA.  The user sets N_DATA to 0 before the
+c    first call.  On each call, the routine increments N_DATA by 1, and
+c    returns the corresponding data; when there is no more data, the
+c    output value of N_DATA will be 0 again.
+c
+c    Output, double precision X, the argument of the function.
+c
+c    Output, double precision FX, the value of the function.
+c
+      implicit none
+
+      integer n_max
+      parameter ( n_max = 21 )
+
+      double precision fx
+      double precision fx_vec(n_max)
+      integer n_data
+      double precision x
+      double precision x_vec(n_max)
+
+      save fx_vec
+      save x_vec
+
+      data fx_vec /
+     &  -0.1775967713143383D+00, -0.3971498098638474D+00, 
+     &  -0.2600519549019334D+00,  0.2238907791412357D+00, 
+     &   0.7651976865579666D+00,  0.1000000000000000D+01, 
+     &   0.7651976865579666D+00,  0.2238907791412357D+00, 
+     &  -0.2600519549019334D+00, -0.3971498098638474D+00, 
+     &  -0.1775967713143383D+00,  0.1506452572509969D+00, 
+     &   0.3000792705195556D+00,  0.1716508071375539D+00, 
+     &  -0.9033361118287613D-01, -0.2459357644513483D+00, 
+     &  -0.1711903004071961D+00,  0.4768931079683354D-01, 
+     &   0.2069261023770678D+00,  0.1710734761104587D+00, 
+     &  -0.1422447282678077D-01 /
+      data x_vec /
+     &  -5.0D+00, -4.0D+00, -3.0D+00, -2.0D+00, -1.0D+00, 
+     &   0.0D+00,  1.0D+00,  2.0D+00,  3.0D+00,  4.0D+00, 
+     &   5.0D+00,  6.0D+00,  7.0D+00,  8.0D+00,  9.0D+00, 
+     &  10.0D+00, 11.0D+00, 12.0D+00, 13.0D+00, 14.0D+00, 
+     &  15.0D+00 /
+
+      if ( n_data < 0 ) then
+        n_data = 0
+      end if
+
+      n_data = n_data + 1
+
+      if ( n_max < n_data ) then
+        n_data = 0
+        x = 0.0D+00
+        fx = 0.0D+00
+      else
+        x = x_vec(n_data)
+        fx = fx_vec(n_data)
+      end if
+
+      return
+      end
+      subroutine bessel_j1_values ( n_data, x, fx )
+
+c*******************************************************************************
+c
+cc BESSEL_J1_VALUES returns some values of the J1 Bessel function.
+c
+c  Discussion:
+c
+c    In Mathematica, the function can be evaluated by:
+c
+c      BesselJ[1,x]
+c
+c  Modified:
+c
+c    14 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Milton Abramowitz and Irene Stegun,
+c    Handbook of Mathematical Functions,
+c    US Department of Commerce, 1964.
+c
+c    Stephen Wolfram,
+c    The Mathematica Book,
+c    Fourth Edition,
+c    Wolfram Media / Cambridge University Press, 1999.
+c
+c  Parameters:
+c
+c    Input/output, integer N_DATA.  The user sets N_DATA to 0 before the
+c    first call.  On each call, the routine increments N_DATA by 1, and
+c    returns the corresponding data; when there is no more data, the
+c    output value of N_DATA will be 0 again.
+c
+c    Output, double precision X, the argument of the function.
+c
+c    Output, double precision FX, the value of the function.
+c
+      implicit none
+
+      integer n_max
+      parameter ( n_max = 21 )
+
+      double precision fx
+      double precision fx_vec(n_max)
+      integer n_data
+      double precision x
+      double precision x_vec(n_max)
+
+      save fx_vec
+      save x_vec
+
+      data fx_vec /
+     &   0.3275791375914652D+00,   0.6604332802354914D-01,  
+     &  -0.3390589585259365D+00,  -0.5767248077568734D+00,  
+     &  -0.4400505857449335D+00,   0.0000000000000000D+00,  
+     &   0.4400505857449335D+00,   0.5767248077568734D+00,  
+     &   0.3390589585259365D+00,  -0.6604332802354914D-01,  
+     &  -0.3275791375914652D+00,  -0.2766838581275656D+00,  
+     &  -0.4682823482345833D-02,   0.2346363468539146D+00,  
+     &   0.2453117865733253D+00,   0.4347274616886144D-01,  
+     &  -0.1767852989567215D+00,  -0.2234471044906276D+00,  
+     &  -0.7031805212177837D-01,   0.1333751546987933D+00,  
+     &   0.2051040386135228D+00 /
+      data x_vec /
+     &  -5.0D+00, -4.0D+00, -3.0D+00, -2.0D+00, -1.0D+00, 
+     &   0.0D+00,  1.0D+00,  2.0D+00,  3.0D+00,  4.0D+00, 
+     &   5.0D+00,  6.0D+00,  7.0D+00,  8.0D+00,  9.0D+00, 
+     &  10.0D+00, 11.0D+00, 12.0D+00, 13.0D+00, 14.0D+00, 
+     &  15.0D+00 /
+
+      if ( n_data < 0 ) then
+        n_data = 0
+      end if
+
+      n_data = n_data + 1
+
+      if ( n_max < n_data ) then
+        n_data = 0
+        x = 0.0D+00
+        fx = 0.0D+00
+      else
+        x = x_vec(n_data)
+        fx = fx_vec(n_data)
+      end if
+
+      return
+      end
+      subroutine bessel_y0_values ( n_data, x, fx )
+
+c*******************************************************************************
+c
+cc BESSEL_Y0_VALUES returns some values of the Y0 Bessel function.
+c
+c  Discussion:
+c
+c    In Mathematica, the function can be evaluated by:
+c
+c      BesselY[0,x]
+c
+c  Modified:
+c
+c    14 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Milton Abramowitz and Irene Stegun,
+c    Handbook of Mathematical Functions,
+c    US Department of Commerce, 1964.
+c
+c    Stephen Wolfram,
+c    The Mathematica Book,
+c    Fourth Edition,
+c    Wolfram Media / Cambridge University Press, 1999.
+c
+c  Parameters:
+c
+c    Input/output, integer N_DATA.  The user sets N_DATA to 0 before the
+c    first call.  On each call, the routine increments N_DATA by 1, and
+c    returns the corresponding data; when there is no more data, the
+c    output value of N_DATA will be 0 again.
+c
+c    Output, double precision X, the argument of the function.
+c
+c    Output, double precision FX, the value of the function.
+c
+      implicit none
+
+      integer n_max
+      parameter ( n_max = 16 )
+
+      double precision fx
+      double precision fx_vec(n_max)
+      integer n_data
+      double precision x
+      double precision x_vec(n_max)
+
+      save fx_vec
+      save x_vec
+
+      data fx_vec /
+     &  -0.1534238651350367D+01,  0.8825696421567696D-01, 
+     &   0.5103756726497451D+00,  0.3768500100127904D+00,  
+     &  -0.1694073932506499D-01,  -0.3085176252490338D+00,  
+     &  -0.2881946839815792D+00,  -0.2594974396720926D-01,  
+     &   0.2235214893875662D+00,   0.2499366982850247D+00,  
+     &   0.5567116728359939D-01,  -0.1688473238920795D+00,  
+     &  -0.2252373126343614D+00,  -0.7820786452787591D-01,  
+     &   0.1271925685821837D+00,   0.2054642960389183D+00 /
+      data x_vec /
+     &   0.1D+00,   1.0D+00,   2.0D+00,   3.0D+00,   4.0D+00,  
+     &   5.0D+00,   6.0D+00,   7.0D+00,   8.0D+00,   9.0D+00,  
+     &  10.0D+00,  11.0D+00,  12.0D+00,  13.0D+00,  14.0D+00,  
+     &  15.0D+00 /
+
+      if ( n_data < 0 ) then
+        n_data = 0
+      end if
+
+      n_data = n_data + 1
+
+      if ( n_max < n_data ) then
+        n_data = 0
+        x = 0.0D+00
+        fx = 0.0D+00
+      else
+        x = x_vec(n_data)
+        fx = fx_vec(n_data)
+      end if
+
+      return
+      end
+      subroutine bessel_y1_values ( n_data, x, fx )
+
+c*******************************************************************************
+c
+cc BESSEL_Y1_VALUES returns some values of the Y1 Bessel function.
+c
+c  Discussion:
+c
+c    In Mathematica, the function can be evaluated by:
+c
+c      BesselY[1,x]
+c
+c  Modified:
+c
+c    14 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Milton Abramowitz and Irene Stegun,
+c    Handbook of Mathematical Functions,
+c    US Department of Commerce, 1964.
+c
+c    Stephen Wolfram,
+c    The Mathematica Book,
+c    Fourth Edition,
+c    Wolfram Media / Cambridge University Press, 1999.
+c
+c  Parameters:
+c
+c    Input/output, integer N_DATA.  The user sets N_DATA to 0 before the
+c    first call.  On each call, the routine increments N_DATA by 1, and
+c    returns the corresponding data; when there is no more data, the
+c    output value of N_DATA will be 0 again.
+c
+c    Output, double precision X, the argument of the function.
+c
+c    Output, double precision FX, the value of the function.
+c
+      implicit none
+
+      integer n_max
+      parameter ( n_max = 16 )
+
+      double precision fx
+      double precision fx_vec(n_max)
+      integer n_data
+      double precision x
+      double precision x_vec(n_max)
+
+      save fx_vec
+      save x_vec
+
+      data fx_vec /
+     &  -0.6458951094702027D+01, -0.7812128213002887D+00, 
+     &  -0.1070324315409375D+00,  0.3246744247918000D+00, 
+     &   0.3979257105571000D+00,  0.1478631433912268D+00, 
+     &  -0.1750103443003983D+00, -0.3026672370241849D+00, 
+     &  -0.1580604617312475D+00,  0.1043145751967159D+00, 
+     &   0.2490154242069539D+00,  0.1637055374149429D+00, 
+     &  -0.5709921826089652D-01, -0.2100814084206935D+00, 
+     &  -0.1666448418561723D+00,  0.2107362803687351D-01 /
+      data x_vec /
+     &   0.1D+00,   1.0D+00,   2.0D+00,   3.0D+00,   4.0D+00,  
+     &   5.0D+00,   6.0D+00,   7.0D+00,   8.0D+00,   9.0D+00,  
+     &  10.0D+00,  11.0D+00,  12.0D+00,  13.0D+00,  14.0D+00,  
+     &  15.0D+00 /
+
+      if ( n_data < 0 ) then
+        n_data = 0
+      end if
+
+      n_data = n_data + 1
+
+      if ( n_max < n_data ) then
+        n_data = 0
+        x = 0.0D+00
+        fx = 0.0D+00
+      else
+        x = x_vec(n_data)
+        fx = fx_vec(n_data)
+      end if
+
+      return
+      end
+      subroutine mathieu_even_values ( n_data, r, q, a )
+
+c*******************************************************************************
+c
+cc MATHIEU_EVEN_VALUES returns eigenvalues of even Mathieu solutions.
+c
+c  Discussion:
+c
+c    Mathieu's differential equation can be written
+c
+c      d2y/dx2 + ( a - 2 * q * cos ( 2 * x ) ) * y = 0
+c
+c    For each integer Q, there are sets of eigenvalues and
+c    associated periodic eigensolutions.  We denote by A(R,Q) 
+c    the R-th eigenvalue associated with an even periodic
+c    solution for Q, and B(R,Q) the R-th eigenvalue associated
+c    with an odd periodic solution for Q.
+c
+c    In Mathematica, the eigenvalues for even functions can
+c    be evaluated by
+c
+c      MathieuCharacteristicA [ r, q ]
+c
+c  Modified:
+c
+c    18 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Milton Abramowitz and Irene Stegun,
+c    Handbook of Mathematical Functions,
+c    US Department of Commerce, 1964.
+c
+c    Stephen Wolfram,
+c    The Mathematica Book,
+c    Fourth Edition,
+c    Wolfram Media / Cambridge University Press, 1999.
+c
+c  Parameters:
+c
+c    Input/output, integer N_DATA.  The user sets N_DATA to 0 before the
+c    first call.  On each call, the routine increments N_DATA by 1, and
+c    returns the corresponding data; when there is no more data, the
+c    output value of N_DATA will be 0 again.
+c
+c    Output, integer R, the index of the eigenvalue.
+c
+c    Output, integer Q, the value of the parameter Q.
+c
+c    Output, real ( kind = 8 ) A, the eigenvalue of the even solution
+c    of Mathieu's equation, A(Q,R).
+c
+      implicit none
+
+      integer n_max
+      parameter ( n_max = 15 )
+
+      double precision a
+      double precision a_vec(n_max)
+      integer n_data
+      integer q
+      integer q_vec(n_max)
+      integer r
+      integer r_vec(n_max)
+
+      save a_vec
+      save q_vec
+      save r_vec
+
+      data a_vec /
+     &    0.0D+00,   1.0D+00,   4.0D+00, 225.0D+00,  25.0D+00, 
+     &   25.54997174998161D+00,  27.70376873393928D+00, 
+     &   31.95782125217288D+00,  36.64498973413284D+00, 
+     &   40.05019098580771D+00,  -5.800046020851508D+00, 
+     &  -40.25677954656679D+00, -14.49130142517482D+00, 
+     &    5.077983197543472D+00, 100.5067700246813D+00 /
+      data q_vec /
+     &   0,  0,  0, 0,  0,  5, 10, 15, 20, 25,  5, 
+     &  25, 20, 15, 10 /
+      data r_vec /
+     &   0,  1,  2, 15,  5,  5,  5,  5,  5,  5,  0, 
+     &   0,  1,  2, 10 /
+
+      if ( n_data < 0 ) then
+        n_data = 0
+      end if
+
+      n_data = n_data + 1
+
+      if ( n_max < n_data ) then
+        n_data = 0
+        r = 0
+        q = 0
+        a = 0.0D+00
+      else
+        r = r_vec(n_data)
+        q = q_vec(n_data)
+        a = a_vec(n_data)
+      end if
+
+      return
+      end
+      subroutine mathieu_odd_values ( n_data, r, q, b )
+
+c*******************************************************************************
+c
+cc MATHIEU_ODD_VALUES returns eigenvalues of odd Mathieu solutions.
+c
+c  Discussion:
+c
+c    Mathieu's differential equation can be written
+c
+c      d2y/dx2 + ( a - 2 * q * cos ( 2 * x ) ) * y = 0
+c
+c    For each integer Q, there are sets of eigenvalues and
+c    associated periodic eigensolutions.  We denote by A(R,Q) 
+c    the R-th eigenvalue associated with an even periodic
+c    solution for Q, and B(R,Q) the R-th eigenvalue associated
+c    with an odd periodic solution for Q.
+c
+c    In Mathematica, the eigenvalues for odd functions can
+c    be evaluated by
+c
+c      MathieuCharacteristicB [ r, q ]
+c
+c  Modified:
+c
+c    18 January 2006
+c
+c  Author:
+c
+c    John Burkardt
+c
+c  Reference:
+c
+c    Milton Abramowitz and Irene Stegun,
+c    Handbook of Mathematical Functions,
+c    US Department of Commerce, 1964.
+c
+c    Stephen Wolfram,
+c    The Mathematica Book,
+c    Fourth Edition,
+c    Wolfram Media / Cambridge University Press, 1999.
+c
+c  Parameters:
+c
+c    Input/output, integer N_DATA.  The user sets N_DATA to 0 before the
+c    first call.  On each call, the routine increments N_DATA by 1, and
+c    returns the corresponding data; when there is no more data, the
+c    output value of N_DATA will be 0 again.
+c
+c    Output, integer R, the index of the eigenvalue.
+c
+c    Output, integer Q, the value of the parameter Q.
+c
+c    Output, real ( kind = 8 ) B, the eigenvalue of the odd solution
+c    of Mathieu's equation, B(Q,R).
+c
+      implicit none
+
+      integer n_max
+      parameter ( n_max = 13 )
+
+      double precision b
+      double precision b_vec(n_max)
+      integer n_data
+      integer q
+      integer q_vec(n_max)
+      integer r
+      integer r_vec(n_max)
+
+      save b_vec
+      save q_vec
+      save r_vec
+
+      data b_vec /
+     &    1.0D+00, -40.25677898468416D+00,   4.0D+00, 
+     &    2.099460445486665D+00,  -2.382158235956956D+00, 
+     &   -8.099346798895896D+00, -14.49106325598072D+00, 
+     &  -21.31486062224985D+00,  27.96788059671747D+00, 
+     &  100.0D+00, 100.5067694628784D+00, 
+     &  225.0D+00, 225.8951534161768D+00 /
+      data q_vec /
+     &   0, 25,  0,  5, 10, 15, 20, 25, 
+     &  15,  0, 10,  0, 20 /
+      data r_vec /
+     &  1, 1, 2, 2, 2, 2, 2, 
+     &  2, 5, 10, 10, 15, 15 /
+
+      if ( n_data < 0 ) then
+        n_data = 0
+      end if
+
+      n_data = n_data + 1
+
+      if ( n_max < n_data ) then
+        n_data = 0
+        r = 0
+        q = 0
+        b = 0.0D+00
+      else
+        r = r_vec(n_data)
+        q = q_vec(n_data)
+        b = b_vec(n_data)
+      end if
+
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS352_PRB
+  Test TOMS algorithm 352, which finds the
+  characteristic values and associated
+  solutions of Matthieu's differential
+  equation.
+ 
+TEST01
+  Test BESSEL, which can compute
+  J0 Bessel functions.
+ 
+      X         Exact Value      Computed
+ 
+   -5.0000   -0.17759677       -0.17759677    
+   -4.0000   -0.39714981       -0.39714981    
+   -3.0000   -0.26005195       -0.26005195    
+   -2.0000    0.22389078        0.22389078    
+   -1.0000    0.76519769        0.76519769    
+    0.0000     1.0000000         1.0000000    
+    1.0000    0.76519769        0.76519769    
+    2.0000    0.22389078        0.22389078    
+    3.0000   -0.26005195       -0.26005195    
+    4.0000   -0.39714981       -0.39714981    
+    5.0000   -0.17759677       -0.17759677    
+    6.0000    0.15064526        0.15064526    
+    7.0000    0.30007927        0.30007927    
+    8.0000    0.17165081        0.17165081    
+    9.0000   -0.90333611E-01   -0.90333611E-01
+   10.0000   -0.24593576       -0.24593576    
+   11.0000   -0.17119030       -0.17119030    
+   12.0000    0.47689311E-01    0.47689311E-01
+   13.0000    0.20692610        0.20692610    
+   14.0000    0.17107348        0.17107348    
+   15.0000   -0.14224473E-01   -0.14224473E-01
+ 
+TEST02
+  Test BESSEL, which can compute
+  J1 Bessel functions.
+ 
+      X         Exact Value      Computed
+ 
+   -5.0000    0.32757914        0.32757914    
+   -4.0000    0.66043328E-01    0.66043328E-01
+   -3.0000   -0.33905896       -0.33905896    
+   -2.0000   -0.57672481       -0.57672481    
+   -1.0000   -0.44005059       -0.44005059    
+    0.0000     0.0000000         0.0000000    
+    1.0000    0.44005059        0.44005059    
+    2.0000    0.57672481        0.57672481    
+    3.0000    0.33905896        0.33905896    
+    4.0000   -0.66043328E-01   -0.66043328E-01
+    5.0000   -0.32757914       -0.32757914    
+    6.0000   -0.27668386       -0.27668386    
+    7.0000   -0.46828235E-02   -0.46828235E-02
+    8.0000    0.23463635        0.23463635    
+    9.0000    0.24531179        0.24531179    
+   10.0000    0.43472746E-01    0.43472746E-01
+   11.0000   -0.17678530       -0.17678530    
+   12.0000   -0.22344710       -0.22344710    
+   13.0000   -0.70318052E-01   -0.70318052E-01
+   14.0000    0.13337515        0.13337515    
+   15.0000    0.20510404        0.20510404    
+ 
+TEST03
+  Test BESSEL, which can compute
+  Y0 Bessel functions.
+ 
+      X         Exact Value      Computed
+ 
+    0.1000    -1.5342387        -1.5342387    
+    1.0000    0.88256964E-01    0.88256964E-01
+    2.0000    0.51037567        0.51037567    
+    3.0000    0.37685001        0.37685001    
+    4.0000   -0.16940739E-01   -0.16940739E-01
+    5.0000   -0.30851763       -0.30851763    
+    6.0000   -0.28819468       -0.28819468    
+    7.0000   -0.25949744E-01   -0.25949744E-01
+    8.0000    0.22352149        0.22352149    
+    9.0000    0.24993670        0.24993670    
+   10.0000    0.55671167E-01    0.55671167E-01
+   11.0000   -0.16884732       -0.16884732    
+   12.0000   -0.22523731       -0.22523731    
+   13.0000   -0.78207865E-01   -0.78207865E-01
+   14.0000    0.12719257        0.12719257    
+   15.0000    0.20546430        0.20546430    
+ 
+TEST04
+  Test BESSEL, which can compute
+  Y1 Bessel functions.
+ 
+      X         Exact Value      Computed
+ 
+    0.1000    -6.4589511        -6.4589511    
+    1.0000   -0.78121282       -0.78121282    
+    2.0000   -0.10703243       -0.10703243    
+    3.0000    0.32467442        0.32467442    
+    4.0000    0.39792571        0.39792571    
+    5.0000    0.14786314        0.14786314    
+    6.0000   -0.17501034       -0.17501034    
+    7.0000   -0.30266724       -0.30266724    
+    8.0000   -0.15806046       -0.15806046    
+    9.0000    0.10431458        0.10431458    
+   10.0000    0.24901542        0.24901542    
+   11.0000    0.16370554        0.16370554    
+   12.0000   -0.57099218E-01   -0.57099218E-01
+   13.0000   -0.21008141       -0.21008141    
+   14.0000   -0.16664484       -0.16664484    
+   15.0000    0.21073628E-01    0.21073628E-01
+ 
+TEST05
+  Test MFCVAL, which can compute
+  the eigenvalues and eigensolutions
+  of Mathieu's differential equation.
+ 
+  Here, we work with EVEN solutions.
+ 
+       R       Q      Exact Value      Computed
+ 
+       0       0     0.0000000         0.0000000    
+       1       0     1.0000000         1.0000000    
+       2       0     4.0000000         4.0000000    
+      15       0     225.00000         225.00000    
+       5       0     25.000000         25.000000    
+       5       5     25.549972         25.549972    
+       5      10     27.703769         27.703769    
+       5      15     31.957821         31.957821    
+       5      20     36.644990         36.644990    
+       5      25     40.050191         40.050191    
+       0       5    -5.8000460        -5.8000460    
+       0      25    -40.256780        -40.256780    
+       1      20    -14.491301        -14.491301    
+       2      15     5.0779832         5.0779832    
+      10      10     100.50677         100.50677    
+ 
+TEST06
+  Test MFCVAL, which can compute
+  the eigenvalues and eigensolutions
+  of Mathieu's differential equation.
+ 
+  Here, we work with ODD solutions.
+ 
+       R       Q      Exact Value      Computed
+ 
+       1       0     1.0000000         1.0000000    
+       1      25    -40.256779        -40.256779    
+       2       0     4.0000000         4.0000000    
+       2       5     2.0994604         2.0994604    
+       2      10    -2.3821582        -2.3821582    
+       2      15    -8.0993468        -8.0993468    
+       2      20    -14.491063        -14.491063    
+       2      25    -21.314861        -21.314861    
+       5      15     27.967881         27.967881    
+      10       0     100.00000         100.00000    
+      10      10     100.50677         100.50677    
+      15       0     225.00000         225.00000    
+      15      20     225.89515         225.89515    
+ 
+TOMS352_PRB
+  Normal end of execution.
+ 
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+      SUBROUTINE MFCVAL ( N, R, QQ, CV, J )
+
+      IMPLICIT NONE
+
+      INTEGER N
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION A0
+      DOUBLE PRECISION A1
+      DOUBLE PRECISION A2
+      DOUBLE PRECISION CV(6,N)
+      DOUBLE PRECISION DL
+      DOUBLE PRECISION DR
+      DOUBLE PRECISION DTM
+      INTEGER J
+      INTEGER K
+      INTEGER KK
+      INTEGER L
+      INTEGER M
+      INTEGER M0
+      INTEGER M1
+      INTEGER M2S
+      INTEGER MF
+      DOUBLE PRECISION Q
+      DOUBLE PRECISION QQ
+      INTEGER R
+      DOUBLE PRECISION T
+      DOUBLE PRECISION TM
+      DOUBLE PRECISION TOL
+      DOUBLE PRECISION TOLA
+      INTEGER TYPE
+
+      EQUIVALENCE ( DL, DR, T )
+
+      COMMON / MF1 / Q, TOL, TYPE, M1, M0, M2S, MF
+
+      COMMON / MF2 / A0, A2, A1
+
+      TOL = 1.0D-13
+
+      IF ( N - R ) 10, 10, 20
+
+10    L = 1
+      GO TO 30
+
+20    L = 2
+
+30    Q = QQ
+
+      DO 500 K = 1, N
+
+        J = K
+
+        IF ( Q .EQ. 0.0D+00 ) THEN
+          GO TO 490
+        END IF
+
+        IF ( Q .LT. 0.0D+00 ) THEN
+960       WRITE ( 6, 961 )
+961       FORMAT ( "0Q GIVEN NEGATIVELY,",              " USED ABSOLUTE 
+     +VALUE" )
+          Q = -Q
+        END IF
+
+40      KK = MIN0 ( K, 4 )
+        TYPE = 2 * MOD ( L, 2 ) + MOD ( K - L + 1, 2 )
+C
+C  FIRST APPROXIMATION.
+C
+        GO TO ( 100, 200, 300, 400 ), KK
+
+100     IF ( Q - 1.0D+00 ) 110, 140, 140
+
+110     GO TO ( 120, 130 ), L
+
+120     A = 1.0D+00 - Q - 0.125D+00 * Q * Q
+        GO TO 420
+
+130     A = Q * Q
+        A = A * ( -0.5D+00 + 0.0546875D+00 * A )
+        GO TO 420
+
+140     IF ( Q - 2.0D+00 ) 150, 180, 180
+
+150     GO TO ( 160, 170 ), L
+
+160     A = 1.033D+00 - 1.0746D+00 * Q - 0.0688D+00 * Q * Q
+        GO TO 420
+
+170     A = 0.23D+00 - 0.495D+00 * Q - 0.191D+00 * Q * Q
+        GO TO 420
+
+180     A = -0.25D+00 - 2.0D+00 * Q + 2.0D+00 * DSQRT ( Q )
+        GO TO 420
+
+200     DL = L
+        IF ( Q * DL - 6.0D+00 ) 210, 350, 350
+
+210     GO TO ( 220, 230 ), L
+
+220     A = 4.01521D+00 - Q * ( 0.046D+00 + 0.0667857D+00 * Q )
+        GO TO 420
+
+230     A = 1.0D+00 + 1.05007D+00 * Q - 0.180143D+00 * Q * Q
+        GO TO 420
+
+300     IF ( Q - 8.0D+00 ) 310, 350, 350
+
+310     GO TO ( 320, 330 ), L
+
+320     A = 8.93867D+00 + 0.178156D+00 * Q - 0.0252132D+00 * Q * Q
+        GO TO 420
+
+330     A = 3.70017D+00 + 0.953485D+00 * Q - 0.0475065D+00 * Q * Q
+        GO TO 420
+
+350     DR = K - 1
+        A = CV(1,K-1) - DR + 4.0D+00 * DSQRT ( Q )
+        GO TO 420
+
+400     A = CV(1,K-1) - CV(1,K-2)
+        A = 3.0D+00 * A + CV(1,K-3)
+
+420     IF ( Q .GE. 1.0D+00 ) GO TO 440
+        IF ( K .NE. 1 ) GO TO 430
+
+425     TOLA = DMAX1 ( DMIN1 ( TOL, DABS ( A ) ), 1.0D-14 )
+        GO TO 450
+
+430     TOLA = TOL * DABS ( A )
+        GO TO 450
+
+440     TOLA = TOL * DMAX1 ( Q, DABS ( A ) )
+
+445     TOLA = DMAX1 ( 
+     &    DMIN1 ( TOLA, DABS ( A ), 0.4D+00 * DSQRT ( Q ) ), 
+     &    1.0D-14 )
+C
+C  CRUDE UPPER AND LOWER BOUNDS.
+C
+450     CONTINUE
+
+        CALL BOUNDS ( K, A, TOLA, CV, N, M )
+        IF ( M .NE. 0 ) IF ( M - 1 ) 470, 910, 900
+C
+C  ITERATE.
+C
+        CALL MFITR8 ( TOLA, CV(1,K), CV(2,K), M )
+        IF ( M .GT. 0 ) GO TO 920
+C
+C  FINAL BOUNDS AND FUNCTIONS.
+C
+470     T = CV(1,K) - TOLA
+        CALL TMOFA ( T, TM, DTM, M )
+
+        IF ( M .GT. 0 ) THEN
+          WRITE ( 6, 941 ) K
+941       FORMAT ( ' ERROR IN SUBPROGRAM TMOFA, NO LOWER BOUND',        
+     +     ' FOR K = ', I2 )
+
+          CV(3,K) = 0.0D+00
+          CV(4,K) = 0.0D+00
+        ELSE
+          CV(3,K) = T
+          CV(4,K) = -TM / DTM
+        END IF
+
+480     T = CV(1,K) + TOLA
+        CALL TMOFA ( T, TM, DTM, M )
+        IF ( M .GT. 0 ) THEN
+950       WRITE ( 6, 951 ) K
+951       FORMAT ( ' ERROR IN SUBPROGRAM TMOFA, NO UPPER BOUND',        
+     +     ' FOR K = ', I2 )
+          CV(5,K) = 0.0D+00
+          CV(6,K) = 0.0D+00
+          GO TO 500
+	END IF
+        CV(5,K) = T
+        CV(6,K) = -TM / DTM
+        GO TO 500
+C
+C  Q EQUALS ZERO.
+C
+490     CV(1,K) = ( K - L + 1 )**2
+        CV(2,K) = 0.0D+00
+        CV(3,K) = CV(1,K)
+        CV(4,K) = 0.0D+00
+        CV(5,K) = CV(1,K)
+        CV(6,K) = 0.0D+00
+
+500   CONTINUE
+
+550   RETURN
+C
+C  PRINT ERROR MESSAGES.
+C
+900   WRITE ( 6, 901 ) K
+901   FORMAT ( "0CRUDE BOUNDS CANNOT",  " BE LOCATED, NO OUTPUT",  " FOR
+     + K=", I2 )
+      GO TO 930
+
+910   WRITE ( 6, 911 ) K
+911   FORMAT ( ' ERROR IN SUBPROGRAM TMOFA, VIA SUBPROGRAM',  ' BOUNDS, 
+     +NO OUTPUT, FOR K = ', I2 )
+      GO TO 930
+
+920   WRITE ( 6, 921 ) K
+921   FORMAT ( ' ERROR IN SUBPROGRAM TMOFA, VIA SUBPROGRAM',  ' MFITR8, 
+     +NO OUTPUT FOR K = ', I2 )
+
+930   J = J - 1
+      GO TO 550
+      END
+      SUBROUTINE MATH ( XX, QQ, R, CV, SOL, FNC, NORM, F, K, M )
+ 
+      IMPLICIT NONE
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION AB(200)
+      DOUBLE PRECISION CV
+      EXTERNAL DC
+      DOUBLE PRECISION DC
+      EXTERNAL DDC
+      DOUBLE PRECISION DDC
+      EXTERNAL DDS
+      DOUBLE PRECISION DDS
+      DOUBLE PRECISION DLAST
+      DOUBLE PRECISION DMAX
+      EXTERNAL DPC
+      DOUBLE PRECISION DPC
+      EXTERNAL DPS
+      DOUBLE PRECISION DPS
+      EXTERNAL DS
+      DOUBLE PRECISION DS
+      REAL DUM1(578)
+      REAL DUM2(6)
+      DOUBLE PRECISION F(3)
+      INTEGER FNC
+      DOUBLE PRECISION G
+      INTEGER I
+      DOUBLE PRECISION J(250)
+      INTEGER K(2)
+      INTEGER KLAST
+      INTEGER KMAX
+      INTEGER L
+      INTEGER LL
+      INTEGER M
+      INTEGER MF
+      INTEGER ML
+      INTEGER MM
+      INTEGER M0
+      INTEGER M1
+      INTEGER M2S
+      INTEGER N
+      INTEGER NORM
+      INTEGER P
+      EXTERNAL PC
+      EXTERNAL PS
+      DOUBLE PRECISION PC, PS
+      DOUBLE PRECISION Q
+      DOUBLE PRECISION QQ
+      INTEGER R
+      INTEGER S
+      INTEGER SOL
+      DOUBLE PRECISION T
+      DOUBLE PRECISION TOL
+      INTEGER TYPE
+      DOUBLE PRECISION U1
+      DOUBLE PRECISION U2
+      DOUBLE PRECISION X
+      DOUBLE PRECISION XX
+      DOUBLE PRECISION Y(250)
+
+      COMMON J, Y, U1, U2, N, P, S, L, X, T, I, LL, G, DMAX, DLAST,
+     &  KMAX, KLAST, DUM1, A, DUM2, MM, ML, AB
+
+      COMMON / MF1 / Q, TOL, TYPE, M1, M0, M2S, MF
+
+      M = 0
+      IF ( SOL .LT. 1 .OR. 
+     &  SOL .GT. 3 .OR. 
+     &  FNC .LT. 1 .OR. 
+     &  FNC .GT. 4 ) GO TO 400
+
+      A = CV
+      Q = QQ
+      TOL = 1.0D-13
+      TYPE = 2 * MOD ( FNC, 2 ) + MOD ( R, 2 )
+      CALL COEF ( M )
+
+      IF ( M ) 410, 10, 420
+
+10    N = R / 2
+      P = MOD ( R, 2 )
+      S = MM / 2
+      L = ML / 2
+      X = XX
+      T = 1.0D+00
+
+      IF ( SOL .EQ. 3 ) GO TO ( 150, 160, 170, 180 ), FNC
+
+      U1 = DSQRT ( Q ) * DEXP ( -X )
+      U2 = Q / U1
+      LL = L + S + P
+C
+C  COMPUTE BESSEL FUNCTIONS.
+C
+      CALL BESSEL ( 1, U1, J, LL )
+      CALL BESSEL ( SOL, U2, Y, LL )
+C
+C  EVALUATE SELECTED FUNCTION.
+C
+      GO TO ( 50, 60, 70, 80 ), FNC
+
+50    CALL SUM ( DS )
+      GO TO 300
+60    CALL SUM ( DC )
+      GO TO 300
+70    CALL SUM ( DDS )
+      GO TO 300
+80    CALL SUM ( DDC )
+      GO TO 300
+150   CALL SUM ( PS )
+      GO TO 200
+160   CALL SUM ( PC )
+      GO TO 200
+170   CALL SUM ( DPS )
+      GO TO 200
+180   CALL SUM ( DPC )
+
+200   IF ( NORM - 2 ) 300, 210, 250
+C
+C  INCE NORMALIZATION.
+C
+210   T = AB(1)**2
+      IF ( TYPE .EQ. 0 ) T = T + T
+      DO 220 I = 1, L
+        T = T + AB(I+1)**2
+220   CONTINUE
+      T = DSQRT ( T )
+      I = M0 / 2
+      IF ( AB(I) .LT. 0.0D+00 ) T = -T
+      GO TO 300
+C
+C  STRATTON NORMALIZATION.
+C
+250   IF ( TYPE .GT. 1 ) GO TO 270
+      T = AB(1)
+      DO 260 I = 1, L
+        T = T + AB(I+1)
+260   CONTINUE
+      GO TO 300
+270   T = DBLE ( FLOAT ( P ) ) * AB(1)
+      DO 280 I = 1, L
+        T = T + AB(I+1) * DBLE ( FLOAT ( 2 * I + P ) )
+280   CONTINUE
+
+300   F(1) = G / T
+      F(2) = DMAX / T
+      F(3) = DLAST / T
+      K(1) = KMAX
+      K(2) = KLAST
+350   RETURN
+C
+C  PRINT ERROR MESSAGES.
+C
+400   WRITE ( 6, 401 )
+401   FORMAT ( "0SOL OR FNC OUT OF",  " RANGE, NO OUTPUT" )
+      GO TO 450
+410   WRITE ( 6, 411 )
+411   FORMAT ( "0MORE THAN 200 ",  "COEFFICIENTS REQUIRED,",  " QQ AND R
+     + TOO LARGE,",  " NO OUTPUT" )
+      GO TO 450
+420   WRITE ( 6, 421 )
+421   FORMAT ( "0ERROR IN SUBPROGRAM",  " TMOFA, VIA SUBPROGRAM",  " COE
+     +F, VERIFY",  " ARGUMENTS, NO OUTPUT" )
+
+450   M = 1
+      F(1) = 0.0D+00
+      F(2) = 0.0D+00
+      F(3) = 0.0D+00
+      K(1) = 0
+      K(2) = 0
+      GO TO 350
+      END
+      SUBROUTINE BOUNDS ( K, APPROX, TOLA, CV, N, MM )
+C
+      IMPLICIT NONE
+
+      INTEGER N
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION A0
+      DOUBLE PRECISION A1
+      DOUBLE PRECISION APPROX
+      DOUBLE PRECISION CV(6,N)
+      DOUBLE PRECISION D0
+      DOUBLE PRECISION D1
+      DOUBLE PRECISION DTM
+      INTEGER K
+      INTEGER KA
+      INTEGER M
+      INTEGER M0
+      INTEGER M1
+      INTEGER M2S
+      INTEGER MF
+      INTEGER MM
+      DOUBLE PRECISION Q
+      DOUBLE PRECISION TM
+      DOUBLE PRECISION TOL
+      DOUBLE PRECISION TOLA
+      INTEGER TYPE
+
+      COMMON / MF1 / Q, TOL, TYPE, M1, M0, M2S, MF
+
+      COMMON / MF2 / A0, A, A1
+
+      KA = 0
+      IF ( K .EQ. 1 ) GO TO 20
+
+      IF ( APPROX - CV(1,K-1) ) 10, 10, 20
+
+10    A0 = CV(1,K-1) + 1.0D+00
+      GO TO 30
+
+20    A0 = APPROX
+
+30    CALL TMOFA ( A0, TM, DTM, M )
+      IF ( M .GT. 0 ) GO TO 250
+      D0 = -TM / DTM
+      IF ( D0 ) 100, 300, 50
+C
+C  A0 IS LOWER BOUND, SEARCH FOR UPPER BOUND.
+C
+50    A1 = A0 + D0 + 0.1D+00
+      CALL TMOFA ( A1, TM, DTM, M )
+
+      IF ( M .GT. 0 ) GO TO 250
+      D1 = -TM / DTM
+
+      IF ( D1 ) 200, 350, 60
+
+60    A0 = A1
+      D0 = D1
+      KA = KA + 1
+
+      IF ( KA - 4 ) 50, 400, 400
+C
+C  A1 IS UPPER BOUND, SEARCH FOR LOWER BOUND.
+C
+100   A1 = A0
+      D1 = D0
+      A0 = DMAX1 ( A1 + D1 - 0.1D+00, -2.0D+00 * Q )
+      IF ( K .EQ. 1 ) GO TO 110
+      IF ( A0 - CV(1,K-1) ) 150, 150, 110
+
+110   CALL TMOFA ( A0, TM, DTM, M )
+      IF ( M .GT. 0 ) GO TO 250
+      D0 = -TM / DTM
+      IF ( D0 ) 120, 300, 200
+
+120   KA = KA + 1
+      IF ( KA - 4 ) 100, 400, 400
+
+150   KA = KA + 1
+      IF ( KA - 4 ) 160, 400, 400
+
+160   A0 = A1 + DMAX1 ( TOLA, DABS ( D1 ) )
+      GO TO 30
+
+200   A = 0.5D+00 * ( A0 + D0 + A1 + D1 )
+      IF ( A .LE. A0 .OR. A .GE. A1 ) A = 0.5D+00 * ( A0 + A1 )
+
+250   MM = M
+      RETURN
+
+300   CV(1,K) = A0
+
+310   CV(2,K) = 0.0D+00
+      M = -1
+      GO TO 250
+
+350   CV(1,K) = A1
+      GO TO 310
+
+400   M = 2
+      GO TO 250
+      END
+      SUBROUTINE MFITR8 ( TOLA, CV, DCV, MM )
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION A0
+      DOUBLE PRECISION A1
+      DOUBLE PRECISION A2
+      DOUBLE PRECISION CV
+      DOUBLE PRECISION D
+      DOUBLE PRECISION DCV
+      DOUBLE PRECISION DTM
+      LOGICAL LAST
+      INTEGER M
+      INTEGER MM
+      INTEGER N
+      DOUBLE PRECISION TM
+      DOUBLE PRECISION TOLA
+
+      COMMON / MF2 / A0, A, A1
+
+      N = 0
+      LAST = .FALSE.
+
+50    N = N + 1
+
+      CALL TMOFA ( A, TM, DTM, M )
+      IF ( M .GT. 0 ) GO TO 400
+      D = -TM / DTM
+C
+C  IS TOLERANCE MET?
+C
+      IF ( N .EQ. 40 .OR. 
+     &  A - A0 .LE. TOLA .OR.
+     &  A1 - A .LE. TOLA .OR.
+     &  DABS ( D ) .LT. TOLA ) LAST = .TRUE.
+      IF ( D ) 110, 100, 120
+
+100   CV = A
+      DCV = 0.0D+00
+      GO TO 320
+C
+C  REPLACE UPPER BOUND BY A.
+C
+110   A1 = A
+      GO TO 200
+C
+C  REPLACE LOWER BOUND BY A.
+C
+120   A0 = A
+
+200   A2 = A + D
+
+      IF ( LAST ) GO TO 300
+      IF ( A2 .GT. A0 .AND. A2 .LT. A1 ) GO TO 250
+
+      A = 0.5D+00 * ( A0 + A1 )
+      GO TO 50
+
+250   A = A2
+      GO TO 50
+
+300   IF ( A2 .LE. A0 .OR. A2 .GE. A1 ) GO TO 350
+
+      CALL TMOFA ( A2, TM, DTM, M )
+
+      IF ( M .GT. 0 ) GO TO 400
+
+      D = - TM / DTM
+      CV = A2
+
+310   DCV = D
+
+320   MM = M
+      RETURN
+
+350   CV = A
+      GO TO 310
+
+400   CV = 0.0D+00
+      DCV = 0.0D+00
+      GO TO 320
+      END
+      SUBROUTINE TMOFA ( ALFA, TM, DTM, ND )
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION A(3)
+      DOUBLE PRECISION AA
+      DOUBLE PRECISION ALFA
+      DOUBLE PRECISION B(3)
+      DOUBLE PRECISION DG(200,2)
+      DOUBLE PRECISION DTM
+      DOUBLE PRECISION DTYPE
+      DOUBLE PRECISION F
+      DOUBLE PRECISION FL
+      DOUBLE PRECISION G(200,2)
+      DOUBLE PRECISION H(200)
+      DOUBLE PRECISION HP
+      INTEGER K
+      INTEGER KK
+      INTEGER KT
+      INTEGER L
+      INTEGER MF
+      INTEGER M0
+      INTEGER M1
+      INTEGER M2S
+      INTEGER ND
+      INTEGER TYPE
+      DOUBLE PRECISION Q
+      DOUBLE PRECISION Q1
+      DOUBLE PRECISION Q2
+      DOUBLE PRECISION QINV
+      DOUBLE PRECISION T
+      DOUBLE PRECISION TM
+      DOUBLE PRECISION TOL
+      DOUBLE PRECISION TT
+      DOUBLE PRECISION V
+
+      COMMON G, DG, AA, A, B, DTYPE, QINV, Q1, Q2, T, TT, K, L, KK, KT
+
+      COMMON / MF1 / Q, TOL, TYPE, M1, M0, M2S, MF
+
+      EQUIVALENCE ( H(1), G(1,1) )
+      EQUIVALENCE ( Q1, HP )
+      EQUIVALENCE ( Q2, F )
+
+      DATA FL / 1.0D+30 /
+C
+C  STATEMENT FUNCTION.
+C
+      V ( K ) = ( AA - DBLE ( FLOAT ( K ) )**2 ) / Q
+
+      ND = 0
+      KT = 0
+      AA = ALFA
+      DTYPE = TYPE
+      QINV = 1.0D+00 / Q
+      DO 10 L = 1, 2
+        DO 5 K = 1, 200
+          G(K,L) = 0.0D+00
+          DG(K,L) = 0.0D+00
+5       CONTINUE
+10    CONTINUE
+
+      IF ( MOD ( TYPE, 2 ) ) 20, 30, 20
+
+20    M0 = 3
+      GO TO 40
+
+30    M0 = TYPE + 2
+40    K = 0.5D+00 * DSQRT ( DMAX1 ( 3.0D+00 * Q + AA, 0.0D+00 ) )
+      M2S = MIN0 ( 2 * K + M0 + 4, 398 + MOD ( M0, 2 ) )
+C
+C  EVALUATION OF THE TAIL OF A CONTINUED FRACTION.
+C
+      A(1) = 1.0D+00
+      A(2) = V(M2S+2)
+      B(1) = V(M2S)
+      B(2) = A(2) * B(1) - 1.0D+00
+      Q1 = A(2) / B(2)
+
+      DO 50 K = 1, 200
+        MF = M2S + 2 + 2 * K
+        T = V(MF)
+        A(3) = T * A(2) - A(1)
+        B(3) = T * B(2) - B(1)
+        Q2 = A(3) / B(3)
+
+        IF ( DABS ( Q1 - Q2 ) .LT. TOL ) GO TO 70
+
+        Q1 = Q2
+        A(1) = A(2)
+        A(2) = A(3)
+        B(1) = B(2)
+        B(2) = B(3)
+50    CONTINUE
+
+      KT = 1
+
+70    T = 1.0D+00 / T
+      TT = - T * T * QINV
+      L = MF - M2S
+
+      DO 80 K = 2, L, 2
+        T = 1.0D+00 / ( V(MF-K) - T )
+        TT = T * T * ( TT - QINV )
+80    CONTINUE
+
+      KK = M2S / 2 + 1
+
+      IF ( KT .EQ. 1 ) Q2 = T
+
+      G(KK,2) = 0.5D+00 * ( Q2 + T )
+      DG(KK,2) = TT
+C
+C  STAGE 1.
+C
+      G(2,1) = 1.0D+00
+
+      DO 140 K = M0, M2S, 2
+
+        KK = K / 2 + 1
+        IF ( K .LT. 5 ) IF ( K - 3 ) 100, 110, 120
+        G(KK,1) = V(K-2) - 1.0D+00 / G(KK-1,1)
+        DG(KK,1) = QINV + DG(KK-1,1) / G(KK-1,1)**2
+        GO TO 130
+
+100     G(2,1) = V ( 0 )
+        DG(2,1) = QINV
+        GO TO 130
+
+110     G(2,1) = V ( 1 ) + DTYPE - 2.0D+00
+        DG(2,1) = QINV
+        GO TO 130
+
+
+120     G(3,1) = V ( 2 ) + ( DTYPE - 2.0D+00 ) / G(2,1)
+        DG(3,1) = QINV + ( 2.0D+00 - DTYPE ) * DG(2,1) / G(2,1)**2
+
+        IF ( TYPE .EQ. 2 ) G(2,1) = 0.0D+00
+
+130     IF ( DABS ( G(KK,1) ) .LT. 1.0D+00 ) GO TO 200
+
+140   CONTINUE
+C
+C  BACKTRACK.
+C
+      TM = G(KK,2) - G(KK,1)
+      DTM = DG(KK,2) - DG(KK,1)
+      M1 = M2S
+      KT = M2S - M0
+
+      DO 180 L = 2, KT, 2
+
+        K = M2S - L
+        KK = K / 2 + 1
+        G(KK,2) = 1.0D+00 / ( V(K) - G(KK+1,2) )
+        DG(KK,2) = -G(KK,2)**2 * ( QINV - DG(KK+1,2) )
+        IF ( K - 2 ) 150, 150, 160
+
+150     G(2,2) = 2.0D+00 * G(2,2)
+        DG(2,2) = 2.0D+00 * DG(2,2)
+
+160     T = G(KK,2) - G(KK,1)
+        IF ( DABS ( T ) - DABS ( TM ) ) 170, 180, 180
+
+170     TM = T
+        DTM = DG(KK,2) - DG(KK,1)
+        M1 = K
+
+180   CONTINUE
+
+      GO TO 320
+C
+C  STAGE 2.
+C
+200   M1 = K
+      K = M2S
+      KK = K / 2 + 1
+
+210   IF ( K .EQ. M1 ) IF ( K - 2 ) 300, 300, 310
+      K = K - 2
+      KK = KK - 1
+      T = V(K) - G(KK+1,2)
+      IF ( DABS ( T ) - 1.0D+00 ) 250, 220, 220
+
+220   G(KK,2) = 1.0D+00 / T
+      DG(KK,2) = ( DG(KK+1,2) - QINV ) / T**2
+      GO TO 210
+C
+C  STAGE 3.
+C
+250   IF ( K .EQ. M1 ) IF ( T ) 220, 290, 220
+      HP = DG(KK+1,2) - QINV
+
+260   G(KK,2) = FL
+      H(KK) = T
+      K = K - 2
+      KK = KK - 1
+      F = V(K) * T - 1.0D+00
+      IF ( K .EQ. M1 ) IF ( F ) 280, 290, 280
+      IF ( DABS ( F ) - DABS ( T ) ) 270, 280, 280
+
+270   HP = HP / T**2 - QINV
+      T = F / T
+      GO TO 270
+
+280   G(KK,2) = T / F
+      DG(KK,2) = ( HP - QINV * T * T ) / F**2
+      GO TO 210
+
+290   ND = 1
+      GO TO 320
+C
+C  CHAINING M EQUALS 3.
+C
+300   G(2,2) = 2.0D+00 * G(2,2)
+      DG(2,2) = 2.0D+00 * DG(2,2)
+
+310   TM = G(KK,2) - G(KK,1)
+      DTM = DG(KK,2) - DG(KK,1)
+
+320   RETURN
+      END
+      SUBROUTINE COEF ( M )
+
+      IMPLICIT NONE
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(800)
+      DOUBLE PRECISION FL
+      DOUBLE PRECISION G(200,2)
+      DOUBLE PRECISION H(200)
+      INTEGER K
+      INTEGER KA
+      INTEGER KB
+      INTEGER KK
+      INTEGER M
+      INTEGER MF
+      INTEGER ML
+      INTEGER MM
+      INTEGER M0
+      INTEGER M1
+      INTEGER M2S
+      DOUBLE PRECISION Q
+      DOUBLE PRECISION T
+      DOUBLE PRECISION TOL
+      INTEGER TYPE
+      DOUBLE PRECISION V
+      DOUBLE PRECISION V2
+
+      SAVE FL
+      SAVE V2
+
+      COMMON G, DUM1, A, T, K, KA, KB, KK, MM, ML, AB
+
+      COMMON / MF1 / Q, TOL, TYPE, M1, M0, M2S, MF
+
+      EQUIVALENCE ( H(1), G(1,1) )
+
+      DATA FL / 1.0D+30 /
+      DATA V2 / 1.0D-15 /
+C
+C  STATEMENT FUNCTION:
+C
+      V ( K ) = ( A - DBLE ( FLOAT ( K ) )**2 ) / Q
+
+      CALL TMOFA ( A, T, T, M )
+
+      IF ( M .NE. 0 ) GO TO 300
+
+      DO 60 K = 1, 200
+        AB(K) = 0.0D+00
+60    CONTINUE
+
+      KA = M1 - M0 + 2
+
+      DO 90 K = 2, KA, 2
+        KK = ( M1 - K ) / 2 + 1
+        IF ( K - 2 ) 70, 70, 80
+70      AB(KK) = 1.0D+00
+        GO TO 90
+80      AB(KK) = AB(KK+1) / G(KK+1,1)
+90    CONTINUE
+
+      KA = 0
+
+      DO 130 K = M1, M2S, 2
+
+        KK = K / 2 + 1
+        ML = K
+        IF ( G(KK,2) .EQ. FL ) GO TO 100
+        AB(KK) = AB(KK-1) * G(KK,2)
+        GO TO 110
+
+100     T = AB(KK-2)
+        IF ( K .EQ. 4 .AND. M1 .EQ. 2 ) T = T + T
+        AB(KK) = T / ( V(K-2) * H(KK) - 1.0D+00 )
+
+110     IF ( DABS ( AB(KK) ) .GE. 1.0D-17 ) KA = 0
+        IF ( KA .EQ. 5 ) GO TO 260
+        KA = KA + 1
+
+130   CONTINUE
+
+      T = DLOG ( DABS ( AB(KK) ) / V2 ) 
+     &  / DLOG ( 1.0D+00 / DABS ( G(KK,2) ) )
+      KA = 2 * IDINT ( T )
+      ML = KA + 2 + M2S
+      IF ( ML .GT. 399 ) GO TO 400
+      KB = KA + 2 + MF
+      T = 1.0D+00 / V(KB)
+      KK = MF - M2S
+
+      DO 150 K = 2, KK, 2
+        T = 1.0D+00 / ( V(KB-K) - T )
+150   CONTINUE
+
+      KK = ML / 2 + 1
+      G(KK,2) = T
+
+      DO 200 K = 2, KA, 2
+        KK = ( ML - K ) / 2 + 1
+        G(KK,2) = 1.0D+00 / ( V(ML-K) - G(KK+1,2) )
+200   CONTINUE
+
+      KA = M2S + 2
+      DO 250 K = KA, ML, 2
+        KK = K / 2 + 1
+        AB(KK) = AB(K-1) * G(KK,2)
+250   CONTINUE
+C
+C  NEUTRAL NORMALIZATION.
+C
+260   T = AB(1)
+      MM = MOD ( TYPE, 2 )
+      KA = MM + 2
+      DO 280 K = KA, ML, 2
+        KK = K / 2 + 1
+        IF ( DABS ( T ) - DABS ( AB(KK) ) ) 270, 280, 280
+270     T = AB(KK)
+        MM = K
+280   CONTINUE
+
+      DO 290 K = 1, KK
+        AB(K) = AB(K) / T
+290   CONTINUE
+
+300   RETURN
+400   M = -1
+      GO TO 300
+      END
+      SUBROUTINE SUM ( DUM )
+
+      IMPLICIT NONE
+
+      DOUBLE PRECISION DLAST
+      DOUBLE PRECISION DMAX
+      DOUBLE PRECISION DUM
+      REAL DUM1(1006)
+      REAL DUM2(6)
+      DOUBLE PRECISION F
+      INTEGER K
+      INTEGER KLAST
+      INTEGER KMAX
+      INTEGER L
+      INTEGER S
+      DOUBLE PRECISION T
+
+      COMMON DUM1, S, L, DUM2, F, DMAX, DLAST, KMAX, KLAST, T
+
+      K = 0
+      F = DUM ( 0 )
+      DMAX = F
+      T = DABS ( F )
+      KMAX = 0
+      DO 30 KLAST = 1, L
+        DLAST = DUM ( KLAST )
+        F = F + DLAST
+        IF ( T - DABS ( DLAST ) ) 10, 10, 20
+10      DMAX = DLAST
+        T = DABS ( DMAX )
+        KMAX = KLAST
+20      IF ( KLAST .LE. S ) GO TO 30
+        IF ( DABS ( DLAST ) / T .GT. 1.0D-13 ) K = 0
+        K = K + 1
+        IF ( K .EQ. 3 ) GO TO 40
+30    CONTINUE
+
+      KLAST = L
+
+40    RETURN
+      END
+      SUBROUTINE BESSEL ( SOL, U, JY, N )
+C
+      IMPLICIT NONE
+
+      INTEGER N
+
+      DOUBLE PRECISION JY(*)
+      INTEGER K
+      INTEGER NN
+      INTEGER SOL
+      DOUBLE PRECISION U
+
+      NN = MIN0 ( N, 249 )
+
+      IF ( U .EQ. 0.0D+00 .AND. SOL .EQ. 2 ) GO TO 80
+      IF ( U .GE. 8.0D+00 ) GO TO 30
+      GO TO ( 10, 20 ), SOL
+
+10    CALL J0J1 ( U, JY )
+      GO TO 40
+
+20    CALL Y0Y1 ( U, JY )
+      GO TO 40
+
+30    CALL LUKE ( U, SOL, JY )
+
+40    IF ( N .LT. 2 ) GO TO 100
+      GO TO ( 50, 60 ), SOL
+
+50    CALL JNS ( JY, U, NN )
+      GO TO 100
+C
+C  RECURRENCE FORMULA.
+C
+60    DO 70 K = 2, NN
+        JY(K+1) = 2.0D+00 
+     &    * DBLE ( FLOAT ( K - 1 ) ) * JY(K) / U - JY(K-1)
+70    CONTINUE
+
+      GO TO 100
+
+80    NN = NN + 1
+      DO 90 K = 1, NN
+        JY(K) = -1.0D+37
+90    CONTINUE
+
+100   RETURN
+      END
+      SUBROUTINE J0J1 ( X, J )
+
+      IMPLICIT NONE
+
+      REAL DUM(1014)
+      DOUBLE PRECISION J(*)
+      DOUBLE PRECISION T(5)
+      DOUBLE PRECISION X
+
+      COMMON DUM, T
+
+      T(1) = X / 2.0D+00
+      J(1) = 1.0D+00
+      J(2) = T(1)
+      T(2) = -T(1)**2
+      T(3) = 1.0D+00
+      T(4) = 1.0D+00
+
+10    T(4) = T(4) * T(2) / T(3)**2
+      J(1) = J(1) + T(4)
+      T(5) = T(4) * T(1) / ( T(3) + 1.0D+00 )
+      J(2) = J(2) + T(5)
+
+      IF ( DMAX1 ( DABS ( T(4) ), DABS ( T(5) ) ) .LT. 1.0D-15 ) RETURN
+
+      T(3) = T(3) + 1.0D+00
+      GO TO 10
+      END
+      SUBROUTINE Y0Y1 ( X, Y )
+
+      IMPLICIT NONE
+
+      REAL DUM(1014)
+      DOUBLE PRECISION T(10)
+      DOUBLE PRECISION X
+      DOUBLE PRECISION Y(*)
+
+      COMMON DUM, T
+
+      T(1) = X / 2.0D+00
+      T(2) = -T(1)**2
+      Y(1) = 1.0D+00
+      Y(2) = T(1)
+      T(7) = 0.0D+00
+      T(10) = -T(1)
+      T(3) = 0.0D+00
+      T(4) = 0.0D+00
+      T(5) = 1.0D+00
+
+10    T(3) = T(3) + 1.0D+00
+      T(4) = T(4) + 1.0D+00 / T(3)
+      T(5) = T(5) * T(2) / T(3)**2
+      Y(1) = Y(1) + T(5)
+      T(6) = -T(5) * T(4)
+      T(7) = T(7) + T(6)
+      T(8) = T(5) * T(1) / ( T(3) + 1.0D+00 )
+      Y(2) = Y(2) + T(8)
+      T(9) = -T(8) * ( 2.0D+00 * T(4) + 1.0D+00 / ( T(3) + 1.0D+00 ) )
+      T(10) = T(10) + T(9)
+
+      IF ( DMAX1 ( DABS ( T(6) ), DABS ( T(9) ) ) .GE. 1.0D-15 ) 
+     &  GO TO 10
+
+      T(2) = 0.57721566490153286D+00 + DLOG ( T(1) )
+      Y(1) = 0.63661977236758134D+00 * ( Y(1) * T(2) + T(7) )
+      Y(2) = 0.63661977236758134D+00 * ( Y(2) * T(2) - 1.0D+00 / X ) 
+     &  + T(10) / 3.1415926535897932D+00
+
+      RETURN
+      END
+      SUBROUTINE LUKE ( U, KIND, JY )
+
+      IMPLICIT NONE
+
+      DOUBLE PRECISION A(19)
+      DOUBLE PRECISION B(19)
+      DOUBLE PRECISION C(19)
+      DOUBLE PRECISION CS
+      DOUBLE PRECISION D(19)
+      REAL DUM(1014)
+      DOUBLE PRECISION G(3)
+      DOUBLE PRECISION JY(2)
+      INTEGER K
+      INTEGER KIND
+      DOUBLE PRECISION R(2)
+      DOUBLE PRECISION S(2)
+      DOUBLE PRECISION SN
+      DOUBLE PRECISION T
+      DOUBLE PRECISION U
+      DOUBLE PRECISION X
+
+      SAVE A
+      SAVE B
+      SAVE C
+      SAVE D
+
+      COMMON DUM, R, S, G, X, T, SN, CS
+
+      DATA A /
+     &   0.99959506476867287416D+00,
+     &  -0.53807956139606913D-03,
+     &  -0.13179677123361570D-03,
+     &   0.151422497048644D-05,
+     &   0.15846861792063D-06,
+     &  -0.856069553946D-08,
+     &  -0.29572343355D-09,
+     &   0.6573556254D-10,
+     &  -0.223749703D-11,
+     &  -0.44821140D-12,
+     &   0.6954827D-13,
+     &  -0.151340D-14,
+     &  -0.92422D-15,
+     &   0.15558D-15,
+     &  -0.476D-17,
+     &  -0.274D-17,
+     &   0.61D-18,
+     &  -0.4D-19,
+     &  -0.1D-19 /
+      DATA B /
+     &  -0.776935569420532136D-02,
+     &  -0.774803230965447670D-02,
+     &   0.2536541165430796D-04,
+     &   0.394273598399711D-05,
+     &  -0.10723498299129D-06,
+     &  -0.721389799328D-08,
+     &   0.73764602893D-09,
+     &   0.150687811D-11,
+     &  -0.574589537D-11,
+     &   0.45996574D-12,
+     &   0.2270323D-13,
+     &  -0.887890D-14,
+     &   0.74497D-15,
+     &   0.5847D-16,
+     &  -0.2410D-16,
+     &   0.265D-17,
+     &   0.13D-18,
+     &  -0.10D-18,
+     &   0.2D-19 /
+
+      DATA C /
+     &   1.00067753586591346234D+00,
+     &   0.90100725195908183D-03,
+     &   0.22172434918599454D-03,
+     &  -0.196575946319104D-05,
+     &  -0.20889531143270D-06,
+     &   0.1028144350894D-07,
+     &   0.37597054789D-10,
+     &  -0.7638891358D-10,
+     &   0.238734670D-11,
+     &   0.51825489D-12,
+     &  -0.7693969D-13,
+     &   0.144008D-14,
+     &   0.103294D-14,
+     &  -0.16821D-15,
+     &   0.459D-17,
+     &   0.302D-17,
+     &  -0.65D-18,
+     &   0.4D-19,
+     &   0.1D-19 /
+      DATA D /
+     &   0.2337682998628580328D-01,
+     &   0.2334680122354557533D-01,
+     &  -0.3576010590901382D-04,
+     &  -0.560863149492627D-05,
+     &   0.13273894084340D-06,
+     &   0.916975845066D-08,
+     &  -0.86838880371D-09,
+     &  -0.378073005D-11,
+     &   0.663145586D-11,
+     &  -0.50584390D-12,
+     &  -0.2720782D-13,
+     &   0.985381D-14,
+     &  -0.79398D-15,
+     &  -0.6757D-16,
+     &   0.2625D-16,
+     &  -0.280D-17,
+     &  -0.15D-18,
+     &   0.10D-18,
+     &  -0.2D-19 /
+
+      X = 8.0D+00 / U
+      G(1) = 1.0D+00
+      G(2) = 2.0D+00 * X - 1.0D+00
+      R(1) = A(1) + A(2) * G(2)
+      S(1) = B(1) + B(2) * G(2)
+      R(2) = C(1) + C(2) * G(2)
+      S(2) = D(1) + D(2) * G(2)
+      DO 10 K = 3, 19
+        G(3) = ( 4.0D+00 * X - 2.0D+00 ) * G(2) - G(1)
+        R(1) = R(1) + A(K) * G(3)
+        S(1) = S(1) + B(K) * G(3)
+        R(2) = R(2) + C(K) * G(3)
+        S(2) = S(2) + D(K) * G(3)
+        G(1) = G(2)
+        G(2) = G(3)
+10    CONTINUE
+
+      T = 0.7978845608028654D+00 / DSQRT ( U )
+      SN = DSIN ( U - 0.7853981633974483D+00 )
+      CS = DCOS ( U - 0.7853981633974483D+00 )
+
+      GO TO ( 20, 30 ), KIND
+
+20    JY(1) = T * ( R(1) * CS - S(1) * SN )
+      JY(2) = T * ( R(2) * SN + S(2) * CS )
+      GO TO 40
+
+30    JY(1) = T * ( S(1) * CS + R(1) * SN )
+      JY(2) = T * ( S(2) * SN - R(2) * CS )
+
+40    RETURN
+      END
+      SUBROUTINE JNS ( JJ, U, M )
+C
+      IMPLICIT NONE
+      INTEGER M
+
+      DOUBLE PRECISION A
+      DOUBLE PRECISION B
+      DOUBLE PRECISION D(2)
+      DOUBLE PRECISION DM
+      REAL DUM(1014)
+      DOUBLE PRECISION G(249)
+      DOUBLE PRECISION JJ(M+1)
+      INTEGER K
+      INTEGER KA
+      INTEGER KK
+      INTEGER M2
+      DOUBLE PRECISION P(3)
+      DOUBLE PRECISION Q(3)
+      DOUBLE PRECISION U
+
+      EQUIVALENCE ( A, G(1) )
+      EQUIVALENCE ( D(1), G(2) )
+      EQUIVALENCE ( P(1), G(4) )
+      EQUIVALENCE ( Q(1), G(7) )
+      EQUIVALENCE ( DM, G(10) )
+      EQUIVALENCE ( B, G(11) )
+
+      COMMON DUM, G, M2, K, KK, KA
+
+      M2 = M
+
+      DM = 2.0D+00 * M
+      P(1) = 0.0D+00
+      Q(1) = 1.0D+00
+      P(2) = 1.0D+00
+      Q(2) = DM / U
+      D(1) = 1.0D+00 / Q(2)
+      A = 2.0D+00
+
+10    B = ( DM + A ) / U
+      P(3) = B * P(2) - P(1)
+      Q(3) = B * Q(2) - Q(1)
+      D(2) = P(3) / Q(3)
+
+      IF ( DABS ( D(1) - D(2) ) .LT. 1.0D-15 ) GO TO 20
+
+      P(1) = P(2)
+      P(2) = P(3)
+      Q(1) = Q(2)
+      Q(2) = Q(3)
+      D(1) = D(2)
+      A = A + 2.0D+00
+      GO TO 10
+
+20    G(M) = D(2)
+      KA = M - 2
+
+      DO 30 K = 1, KA
+        KK = M - K
+        A = 2 * KK
+        G(KK) = U / ( A - U * G(KK+1) )
+        IF ( G(KK) .EQ. 0.0D+00 ) G(KK) = 1.0D-35
+30    CONTINUE
+
+      DO 40 K = 2, M
+        JJ(K+1) = G(K) * JJ(K)
+40    CONTINUE
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION DS ( KK )
+C
+C  EVALUATES ONE TERM OF THE RADIAL SOLUTION ASSOCIATED WITH B(Q).
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1004)
+      REAL DUM2(17)
+      REAL DUM3(583)
+      DOUBLE PRECISION FJ
+      DOUBLE PRECISION FY
+      INTEGER K
+      INTEGER KK
+      INTEGER N
+      INTEGER N1
+      INTEGER N2
+      INTEGER P
+      INTEGER S
+
+      COMMON DUM1, N, P, S, DUM2,
+     &  K, N1, N2, DUM3, AB
+
+      K = KK
+      N1 = K - S
+      N2 = K + S + P
+      DS = AB(K+1) * ( FJ ( N1 ) * FY ( N2 ) - FJ ( N2 ) * FY ( N1 ) )
+      IF ( MOD ( K + N, 2 ) .NE. 0 ) DS = -DS
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION DC ( KK )
+C
+C  EVALUATES ONE TERM OF THE RADIAL SOLUTION ASSOCIATED WITH A(Q).
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1004)
+      REAL DUM2(17)
+      REAL DUM3(583)
+      DOUBLE PRECISION FJ
+      DOUBLE PRECISION FY
+      INTEGER K
+      INTEGER KK
+      INTEGER N
+      INTEGER N1
+      INTEGER N2
+      INTEGER P
+      INTEGER S     
+
+      COMMON DUM1, N, P, S, DUM2,
+     &  K, N1, N2, DUM3, AB
+
+      K = KK
+      N1 = K - S
+      N2 = K + S + P     
+      DC = AB(K+1) * ( FJ ( N1 ) * FY ( N2 ) - FJ ( N2 ) * FY ( N1 ) )
+      IF ( MOD ( K + N, 2 ) .NE. 0 ) DC = -DC
+      IF ( S + P .EQ. 0 ) DC = 0.5D+00 * DC
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION DDS ( KK )
+C
+C  EVALUATES ONE TERM OF THE DERIVATIVE OF THE RADIAL SOLUTION
+C  ASSOCIATED WITH B(Q).
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1000)
+      REAL DUM2(17)
+      REAL DUM3(583)
+      DOUBLE PRECISION DJ
+      DOUBLE PRECISION DY
+      DOUBLE PRECISION FJ
+      DOUBLE PRECISION FY
+      INTEGER K
+      INTEGER KK
+      INTEGER N
+      INTEGER N1
+      INTEGER N2
+      INTEGER P
+      INTEGER S
+      DOUBLE PRECISION U1
+      DOUBLE PRECISION U2
+
+      COMMON DUM1, U1, U2, N, P, S, DUM2,
+     &  K, N1, N2, DUM3, AB
+
+      K = KK
+      N1 = K - S
+      N2 = K + S + P
+      DDS = AB(K+1) * ( 
+     &    U2 * ( FJ ( N1 ) * DY ( N2 ) 
+     &         - FJ ( N2 ) * DY ( N1 ) )
+     &  - U1 * ( FY ( N2 ) * DJ ( N1 ) 
+     &         - FY ( N1 ) * DJ ( N2 ) ) )
+ 
+      IF ( MOD ( K + N, 2 ) .NE. 0 ) DDS = -DDS
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION DDC ( KK )
+C
+C  EVALUATES ONE TERM OF THE DERIVATIVE OF THE RADIAL SOLUTION 
+C  ASSOCIATED WITH A(Q).
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1000)
+      REAL DUM2(17)
+      REAL DUM3(583)
+      DOUBLE PRECISION DJ
+      DOUBLE PRECISION DY
+      DOUBLE PRECISION FJ
+      DOUBLE PRECISION FY
+      INTEGER K
+      INTEGER KK
+      INTEGER N
+      INTEGER N1
+      INTEGER N2
+      INTEGER P
+      INTEGER S
+      DOUBLE PRECISION U1
+      DOUBLE PRECISION U2
+
+      COMMON DUM1, U1, U2, N, P, S, DUM2,
+     &  K, N1, N2, DUM3, AB
+
+      K = KK
+      N1 = K - S
+      N2 = K + S + P     
+      DDC = AB(K+1) * ( 
+     &    U2 * ( FJ ( N1 ) * DY ( N2 ) 
+     &         + FJ ( N2 ) * DY ( N1 ) )
+     &  - U1 * ( FY ( N2 ) * DJ ( N1 ) 
+     &         + FY ( N1 ) * DJ ( N2 ) ) )
+
+      IF ( MOD ( K + N, 2 ) .NE. 0 ) DDC = -DDC
+      IF ( S + P .EQ. 0 ) DDC = 0.5D+00 * DDC
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION PS ( K )
+C
+C  EVALUATES ONE TERM OF THE ODD PERIODIC SOLUTION.
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1005)
+      REAL DUM2(2)
+      REAL DUM3(600)
+      INTEGER K
+      INTEGER P
+      DOUBLE PRECISION X
+
+      COMMON DUM1, P, DUM2, X, DUM3, AB
+
+      PS = AB(K+1) * DSIN ( DBLE ( FLOAT ( 2 * K + P ) ) * X )
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION PC ( K )
+C
+C  EVALUATES ONE TERM OF THE EVEN PERIODIC SOLUTION.
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1005)
+      REAL DUM2(2)
+      REAL DUM3(600)
+      INTEGER K
+      INTEGER P
+      DOUBLE PRECISION X
+
+      COMMON DUM1, P, DUM2, X, DUM3, AB
+
+      PC = AB(K+1) * DCOS ( DBLE ( FLOAT ( 2 * K + P ) ) * X )
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION DPS ( K )
+C
+C  EVALUATES ONE TERM OF THE DERIVATIVE OF THE ODD PERIODIC SOLUTION.
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1005)
+      REAL DUM2(2)
+      REAL DUM3(14)
+      REAL DUM4(584)
+      INTEGER K
+      INTEGER P
+      DOUBLE PRECISION T
+      DOUBLE PRECISION X
+
+      COMMON DUM1, P, DUM2, X, DUM3, T, DUM4, AB
+
+      T = 2 * K + P
+      DPS = AB(K+1) * T * DCOS ( T * X )
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION DPC ( K )
+C
+C  EVALUATES ONE TERM OF THE DERIVATIVE OF THE EVEN PERIODIC SOLUTION.
+C
+      IMPLICIT NONE
+
+      DOUBLE PRECISION AB(200)
+      REAL DUM1(1005)
+      REAL DUM2(2)
+      REAL DUM3(14)
+      REAL DUM4(584)
+      INTEGER K
+      INTEGER P
+      DOUBLE PRECISION T
+      DOUBLE PRECISION X
+
+      COMMON DUM1, P, DUM2, X, DUM3, T, DUM4, AB
+
+      T = 2 * K + P
+      DPC = -AB(K+1) * T * DSIN ( T * X )
+
+      RETURN
+      END
+      DOUBLE PRECISION FUNCTION FJ ( N )
+C
+C  PRODUCES BESSEL FUNCTIONS OF THE FIRST KIND.
+C
+      IMPLICIT NONE
+
+      REAL DUM(527)
+      DOUBLE PRECISION J(250)
+      INTEGER K
+      INTEGER N
+
+      COMMON J, DUM, K
+
+      K = IABS ( N )
+
+      IF ( K .GE. 250 ) GO TO 20
+      FJ = J(K+1)
+      IF ( MOD ( N, 2 ) .LT. 0 ) FJ = -FJ
+10    RETURN
+
+20    FJ = 0.0D+00
+      WRITE ( 6, 99 ) N
+99    FORMAT ( "0J", I3, " NEEDED" )
+      GO TO 10
+      END
+      DOUBLE PRECISION FUNCTION FY ( N )
+C
+C  PRODUCES BESSEL FUNCTIONS OF THE SECOND KIND.
+C
+      IMPLICIT NONE
+
+      REAL DUM1(500)
+      REAL DUM2(27)
+      INTEGER K
+      INTEGER N
+      DOUBLE PRECISION Y(250)
+
+      COMMON DUM1, Y, DUM2, K
+
+      K = IABS ( N )
+
+      IF ( K .GE. 250 ) GO TO 20
+      FY = Y(K+1)
+      IF ( MOD ( N, 2 ) .LT. 0 ) FY = -FY
+10    RETURN
+
+20    FY = 0.0D+00
+      WRITE ( 6, 99 ) N
+99    FORMAT ( "0Y", I3, " NEEDED" )
+      GO TO 10
+      END
+      DOUBLE PRECISION FUNCTION DJ ( N )
+C
+C  DERIVATIVES OF BESSEL FUNCTIONS OF THE FIRST KIND.
+C
+      IMPLICIT NONE
+
+      REAL DUM1(1000)
+      REAL DUM2(26)
+      DOUBLE PRECISION FJ
+      DOUBLE PRECISION FN
+      INTEGER N
+      DOUBLE PRECISION U1
+
+      COMMON DUM1, U1, DUM2, FN
+
+      FN = N
+
+      IF ( N - 249 ) 10, 20, 40
+
+10    DJ = FN * FJ ( N ) / U1 - FJ ( N+1 )
+      GO TO 30
+
+20    DJ = FJ ( N-1 ) - FN * FJ ( N ) / U1
+
+30    RETURN
+
+40    DJ = 0.0D+00
+      WRITE ( 6, 99 ) N
+99    FORMAT ( "0J@", I3, " NEEDED" )
+      GO TO 30
+      END
+      DOUBLE PRECISION FUNCTION DY ( N )
+C
+C  DERIVATIVES OF BESSEL FUNCTIONS OF THE SECOND KIND.
+C
+      IMPLICIT NONE
+
+      REAL DUM1(1002)
+      REAL DUM2(24)
+      DOUBLE PRECISION FN
+      DOUBLE PRECISION FY
+      INTEGER N
+      DOUBLE PRECISION U2
+
+      COMMON DUM1, U2, DUM2, FN
+
+      IF ( N .GE. 250 ) GO TO 20
+
+      FN = N
+      DY = FY ( N-1 ) * FN * FY ( N ) / U2
+10    RETURN
+
+20    DY = 0.0D+00
+      WRITE ( 6, 99 ) N
+99    FORMAT ( "0Y@", I3, " NEEDED" )
+      GO TO 10
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0

@@ -1,0 +1,785 @@
+C      ALGORITHM 424, COLLECTED ALGORITHMS FROM ACM.
+C      THIS WORK PUBLISHED IN COMMUNICATIONS OF THE ACM
+C      VOL. 15, NO. 5, May, 1972, PP.353--355.
+#! /bin/sh
+# This is a shell archive, meaning:
+# 1. Remove everything above the #! /bin/sh line.
+# 2. Save the resulting text in a file.
+# 3. Execute the file with /bin/sh (not csh) to create the files:
+#	Fortran/
+#	Fortran/Sp/
+#	Fortran/Sp/Driver/
+#	Fortran/Sp/Driver/Makefile
+#	Fortran/Sp/Driver/driver.f
+#	Fortran/Sp/Driver/res
+#	Fortran/Sp/Src/
+#	Fortran/Sp/Src/src.f
+# This archive created: Thu Dec 15 13:26:34 2005
+export PATH; PATH=/bin:$PATH
+if test ! -d 'Fortran'
+then
+	mkdir 'Fortran'
+fi
+cd 'Fortran'
+if test ! -d 'Sp'
+then
+	mkdir 'Sp'
+fi
+cd 'Sp'
+if test ! -d 'Driver'
+then
+	mkdir 'Driver'
+fi
+cd 'Driver'
+if test -f 'Makefile'
+then
+	echo shar: will not over-write existing file "'Makefile'"
+else
+cat << "SHAR_EOF" > 'Makefile'
+all: Res
+
+src.o: src.f
+	$(F77) $(F77OPTS) -c src.f
+
+driver.o: driver.f
+	$(F77) $(F77OPTS) -c driver.f
+
+DRIVERS= driver
+RESULTS= Res
+
+Objs1= driver.o src.o
+driver: $(Objs1)
+	$(F77) $(F77OPTS) -o driver $(Objs1) $(SRCLIBS)
+Res: driver 
+	./driver >Res
+
+diffres:Res res
+	echo "Differences in results from driver"
+	$(DIFF) Res res
+
+clean: 
+	rm -rf *.o $(DRIVERS) $(CLEANUP) $(RESULTS)
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'driver.f'
+then
+	echo shar: will not over-write existing file "'driver.f'"
+else
+cat << "SHAR_EOF" > 'driver.f'
+      program main
+
+c***********************************************************************
+c
+cc TOMS424_PRB tests CCQUAD.
+c
+      implicit none
+
+      real a
+      real b
+      external f1d1
+      external fbd1
+      external fed1
+      external fqd1
+      external fxd1
+      external fx2d1
+      external fx3d1
+
+      a = 0.0
+      b = 1.0
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) 'TOMS424_PRB'
+      write ( *, '(a)' ) '  Test CCQUAD, the ACM TOMS algorithm 424'
+      write ( *, '(a)' ) '  for Clenshaw-Curtis quadrature to estimate'
+      write ( *, '(a)' ) '  the integral of F(X) on [A,B].'
+      write ( *, '(a)' ) ' '
+      write ( *, '(a,g24.16)' ) '  A = ', a
+      write ( *, '(a,g24.16)' ) '  B = ', b
+ 
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=1'
+
+      call test01 ( f1d1, a, b )
+ 
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=X'
+ 
+      call test01 ( fxd1, a, b )
+ 
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=X*2'
+
+      call test01 ( fx2d1, a, b )
+ 
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=X*3'
+
+      call test01 ( fx3d1, a, b )
+ 
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=EXP(X)'
+
+      call test01 ( fed1, a, b )
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=SQRT(X)'
+
+      call test01 ( fqd1, a, b )
+
+      write ( *, '(a)' ) ' '
+      write ( *, '(a)' ) '  F(X)=1/(1+X*X)'
+
+      call test01 ( fbd1, a, b )
+
+      return
+      end
+      subroutine test01 ( f, a, b )
+
+c***********************************************************************
+c
+cc TEST01 tests CCQUAD with a given function.
+c
+      implicit none
+
+      integer limit
+      parameter ( limit = 1000 )
+
+      real a
+      real b
+      real ccquad
+      real csxfrm(limit)
+      real esterr
+      external f
+      integer i
+      real quad
+      real tolerr
+      integer used
+
+      tolerr = 1.0E-06
+
+      quad = ccquad ( f, a, b, tolerr, limit, esterr, used,
+     *  csxfrm )
+ 
+      write ( *, '(a,g24.16)' ) '  Integral estimate: ', quad
+      write ( *, '(a,g24.16)' ) '  Error estimate:    ', esterr
+      write ( *, '(a,i6)'     ) '  Evaluations of F = ', used
+
+      if ( used < 20 ) then
+        write ( *, '(a)' ) ' '
+        write ( *, '(a)' ) '  Scaled Discrete Cosine Transform:'
+        write ( *, '(a)' ) ' '
+        do i = 1, used
+          write ( *, '(g24.16)' ) csxfrm(i)
+        end do
+      end if
+ 
+      return
+      end
+      function f1d1 ( x )
+
+c***********************************************************************
+c
+cc F1D1(X) = 1.
+c
+      implicit none
+
+      real f1d1
+      real x
+
+      f1d1 = 1.0
+ 
+      return
+      end
+      function fbd1 ( x )
+
+c***********************************************************************
+c
+cc FBD1(X) = 1 / ( 1 + X**2 )
+c
+      implicit none
+
+      real fbd1
+      real x
+
+      fbd1 = 1.0 / ( 1.0 + x**2 )
+ 
+      return
+      end
+      function fed1 ( x )
+
+c***********************************************************************
+c
+cc FED1(X) = EXP(X).
+c
+      implicit none
+
+      real fed1
+      real x
+
+      fed1 = exp ( x )
+ 
+      return
+      end
+      function fqd1 ( x )
+
+c***********************************************************************
+c
+cc FQD1(X) = SQRT ( X ).
+c
+      implicit none
+
+      real fqd1
+      real x
+
+      fqd1 = sqrt ( abs ( x ) )
+
+      return
+      end
+      function fxd1 ( x )
+
+c***********************************************************************
+c
+cc FXD1(X) = X.
+c
+      implicit none
+
+      real fxd1
+      real x
+
+      fxd1 = x
+ 
+      return
+      end
+      function fx2d1 ( x )
+
+c***********************************************************************
+c
+cc FX2D1(X) = X**2.
+c
+      implicit none
+
+      real fx2d1
+      real x
+
+      fx2d1 = x**2
+ 
+      return
+      end
+      function fx3d1 ( x )
+
+c***********************************************************************
+c
+cc FX3D1(X) = X**3.
+c
+      implicit none
+
+      real fx3d1
+      real x
+
+      fx3d1 = x**3
+ 
+      return
+      end
+      function fxsd1 ( x )
+
+c***********************************************************************
+c
+cc FXSD1(X) = X / SQRT ( 1 - X**2 )
+c
+      implicit none
+
+      real fxsd1
+      real x
+
+      fxsd1 = x / sqrt ( 1.0 - x**2 )
+ 
+      return
+      end
+SHAR_EOF
+fi # end of overwriting check
+if test -f 'res'
+then
+	echo shar: will not over-write existing file "'res'"
+else
+cat << "SHAR_EOF" > 'res'
+ 
+TOMS424_PRB
+  Test CCQUAD, the ACM TOMS algorithm 424
+  for Clenshaw-Curtis quadrature to estimate
+  the integral of F(X) on [A,B].
+ 
+  A =    0.000000000000000    
+  B =    1.000000000000000    
+ 
+  F(X)=1
+  Integral estimate:    1.000000000000000    
+  Error estimate:       0.000000000000000    
+  Evaluations of F =      7
+ 
+  Scaled Discrete Cosine Transform:
+ 
+   12.00000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+ 
+  F(X)=X
+  Integral estimate:   0.5000000000000000    
+  Error estimate:       0.000000000000000    
+  Evaluations of F =      7
+ 
+  Scaled Discrete Cosine Transform:
+ 
+   6.000000000000000    
+   3.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+ 
+  F(X)=X*2
+  Integral estimate:   0.3333333432674408    
+  Error estimate:       0.000000000000000    
+  Evaluations of F =      7
+ 
+  Scaled Discrete Cosine Transform:
+ 
+   4.500000000000000    
+   3.000000000000000    
+  0.7500000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+   0.000000000000000    
+ 
+  F(X)=X*3
+  Integral estimate:   0.2500000000000000    
+  Error estimate:       0.000000000000000    
+  Evaluations of F =      7
+ 
+  Scaled Discrete Cosine Transform:
+ 
+   3.750000000000000    
+   2.812500000000000    
+   1.125000000000000    
+  0.1875000000000000    
+ -0.5960464477539062E-07
+ -0.1192092895507812E-06
+ -0.1192092895507812E-06
+ 
+  F(X)=EXP(X)
+  Integral estimate:    1.718281865119934    
+  Error estimate:      0.1059638137235197E-06
+  Evaluations of F =     19
+ 
+  Scaled Discrete Cosine Transform:
+ 
+   63.12195587158203    
+   15.30704975128174    
+   1.893756747245789    
+  0.1569977104663849    
+  0.9781789034605026E-02
+  0.4878762993030250E-03
+  0.2050399780273438E-04
+  0.9911077540891711E-06
+ -0.8022512929528602E-06
+ -0.4183548298897222E-06
+ -0.9432624210603535E-06
+ -0.3935417680622777E-07
+ -0.1907348632812500E-05
+  0.9930284932124778E-06
+  0.3472159733064473E-06
+ -0.9573523129802197E-07
+  0.1349586398191605E-06
+ -0.3477384211691970E-06
+ -0.9536743164062500E-06
+ 
+  F(X)=SQRT(X)
+  Integral estimate:   0.6666666865348816    
+  Error estimate:      0.6593303965019004E-06
+  Evaluations of F =    163
+ 
+  F(X)=1/(1+X*X)
+  Integral estimate:   0.7853981256484985    
+  Error estimate:      0.3708733515850327E-06
+  Evaluations of F =     19
+ 
+  Scaled Discrete Cosine Transform:
+ 
+   27.96792984008789    
+  -4.798538208007812    
+ -0.4530929923057556    
+  0.3070300221443176    
+ -0.3384946659207344E-01
+ -0.8356167003512383E-02
+  0.3092885017395020E-02
+ -0.1626395242055878E-03
+ -0.1163736887974665E-03
+  0.2904943721659947E-04
+  0.2347457552787091E-06
+ -0.1283066239921027E-05
+  0.9536743164062500E-06
+ -0.1474452346883481E-06
+ -0.2943504000540997E-06
+ -0.1411845005350187E-06
+ -0.2241758920717984E-06
+ -0.2469314495101571E-06
+ -0.2384185791015625E-06
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+if test ! -d 'Src'
+then
+	mkdir 'Src'
+fi
+cd 'Src'
+if test -f 'src.f'
+then
+	echo shar: will not over-write existing file "'src.f'"
+else
+cat << "SHAR_EOF" > 'src.f'
+C Incorporates the changes suggested in the remarks
+C GOOD: CACM 16,8 p490 -- August 1973.
+C GEDDES: TOMS 5,2 p240 -- June 1979.
+
+      REAL FUNCTION CCQUAD(F,A,B,TOLERR,LIMIT,ESTERR,USED,
+     *  CSXFRM)
+
+      IMPLICIT NONE
+C
+C  INPUT ARGUMENTS-
+C
+      REAL F,A,B,TOLERR
+      INTEGER LIMIT
+C  OUTPUT ARGUMENTS-
+      REAL ESTERR,CSXFRM(LIMIT)
+      INTEGER USED
+C
+C  USING CLENSHAW-CURTIS QUADRATURE, THIS FUNCTION SUB-
+C  PROGRAM ATTEMPTS TO INTEGRATE THE FUNCTION F FROM A TO B
+C  TO AT LEAST THE REQUESTED RELATIVE ACCURACY TOLERR, WHILE
+C  USING NO MORE THAN LIMIT FUNCTION EVALUATIONS.  IF THIS
+C  CAN BE DONE, CCQUAD RETURNS THE VALUE OF THE INTEGRAL,
+C  ESTERR RETURNS AN ESTIMATE OF THE ABSOLUTE ERROR ACTUALLY
+C  COMMITTED, USED RETURNS THE NUMBER OF FUNCTION VALUES
+C  ACTUALLY USED, AND CSXFRM(1),...,CSXFRM(USED) CONTAINS
+C  N=USED-1 TIMES THE DISCRETE COSINE TRANSFORM, AS USUALLY
+C  DEFINED, OF THE INTEGRAND IN THE INTERVAL.  IF THE
+C  REQUESTED ACCURACY CANNOT BE OBTAINED WITH THE NUMBER OF
+C  FUNCTION EVALUATIONS PERMITTED, THE LAST (AND PRESUMABLY
+C  BEST) ANSWER OBTAINED IS RETURNED.
+C
+      REAL PI,RT3,CENTRE,WIDTH,SHIFT,FUND,ANGLE,C,S
+      REAL OLDINT,NEWINT
+      REAL T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12
+C  INSERT THE FOLLOWING STATEMENT TO TRACE PROGRAM FLOW.
+C     REAL SCLINT,SCLERR
+      INTEGER N,N2,N3,N_LESS_1,N_LESS_3,MAX,M_MAX,J,STEP
+      INTEGER L(8),L1,L2,L3,L4,L5,L6,L7,L8
+      INTEGER J1,J2,J3,J4,J5,J6,J7,J8,J_REV
+      EQUIVALENCE (L(1),L1),(L(2),L2),(L(3),L3),(L(4),L4),
+C*** The next line was changed as per remark
+C*** by Good (CACM 16,8 p490)
+C    *  (L(5),L5),(L(6),L6),(L(7),L7),(L(8),L8),(J8,J_REV)
+     *  (L(5),L5),(L(6),L6),(L(7),L7),(L(8),L8)
+      DATA PI,RT3/3.141592653589E0, 1.732050807568E0 /
+      DATA M_MAX / 8 /
+C
+C  INITIALIZATION.
+C
+      CENTRE=(A+B)*.5E0
+      WIDTH=(B-A)*.5E0
+      MAX=MIN0(LIMIT,2*3**(M_MAX+1))
+      DO 10 J=1,M_MAX
+        L(J)=1
+10    CONTINUE
+C
+C  COSINE TRANSFORM.
+C  COMPUTE DOUBLE THE COSINE TRANSFORM WITH N=6.
+C
+      N=6
+C
+C  SAMPLE THE FUNCTION.
+C
+C*** The next two lines were changed as per remark
+C*** by Geddes (TOMS 5,2 p240)
+C     CSXFRM(1)=F(A)
+C     CSXFRM(7)=F(B)
+      CSXFRM(1)=F(B)
+      CSXFRM(7)=F(A)
+C*** The next line was changed as per remark
+C*** by Geddes (TOMS 5,2 p240)
+C     SHIFT=WIDTH*RT3*.5E0
+      SHIFT=-WIDTH*RT3*.5E0
+      CSXFRM(2)=F(CENTRE-SHIFT)
+      CSXFRM(6)=F(CENTRE+SHIFT)
+C*** The next line was changed as per remark
+C*** by Geddes (TOMS 5,2 p240)
+C     SHIFT=WIDTH*.5E0
+      SHIFT=-WIDTH*.5E0
+
+      CSXFRM(3)=F(CENTRE-SHIFT)
+      CSXFRM(5)=F(CENTRE+SHIFT)
+      CSXFRM(4)=F(CENTRE)
+C  EVALUATE THE FACTORED N=6 COSINE TRANSFORM.
+      T1=CSXFRM(1)+CSXFRM(7)
+      T2=CSXFRM(1)-CSXFRM(7)
+      T3=2.E0*CSXFRM(4)
+      T4=CSXFRM(2)+CSXFRM(6)
+      T5=(CSXFRM(2)-CSXFRM(6))*RT3
+      T6=CSXFRM(3)+CSXFRM(5)
+      T7=CSXFRM(3)-CSXFRM(5)
+      T8=T1+2.E0*T6
+      T9=2.E0*T4+T3
+      T10=T2+T7
+      T11=T1-T6
+      T12=T4-T3
+      CSXFRM(1)=T8+T9
+      CSXFRM(2)=T10+T5
+      CSXFRM(3)=T11+T12
+      CSXFRM(4)=T2-2.E0*T7
+      CSXFRM(5)=T11-T12
+      CSXFRM(6)=T10-T5
+      CSXFRM(7)=T8-T9
+      USED=7
+C  GO TO INTEGRAL COMPUTATION, BUT FIRST COMPUTE INTEGRAL FOR N=2.
+      GO TO 200
+C
+C  COMPUTE REFINED APPROXIMATION.
+C  SAMPLE FUNCTION AT INTERMEDIATE POINTS IN DIGIT REVERSED
+C  ORDER.  AS THE SEQUENCE IS GENERATED, COMPUTE THE FIRST
+C  (RADIX FOUR TRANSFORM) PASS OF THE FAST FOURIER TRANSFORM.
+C
+100   DO 110 J=2,M_MAX
+        L(J-1)=L(J)
+110   CONTINUE
+      L(M_MAX)=3*L(M_MAX-1)
+      J=USED
+      FUND=PI/FLOAT(3*N)
+      DO 127 J1=1,L1,1
+        DO 126 J2=J1,L2,L1
+          DO 125 J3=J2,L3,L2
+            DO 124 J4=J3,L4,L3
+              DO 123 J5=J4,L5,L4
+                DO 122 J6=J5,L6,L5
+                  DO 121 J7=J6,L7,L6
+                    DO 120 J8=J7,L8,L7
+C*** The next line was changed as per remark
+C*** by Good (CACM 16,8 p490)
+C                     ANGLE=FUND*FLOAT(3*J_REV-2)
+                      ANGLE=FUND*FLOAT(3*J8-2)
+C*** The next line was changed as per remark
+C*** by Geddes (TOMS 5,2 p240)
+C                     SHIFT=WIDTH*COS(ANGLE)
+                      SHIFT=-WIDTH*COS(ANGLE)
+                      T1=F(CENTRE-SHIFT)
+                      T3=F(CENTRE+SHIFT)
+C*** The next line was changed as per remark
+C*** by Geddes (TOMS 5,2 p240)
+C                     SHIFT=WIDTH*SIN(ANGLE)
+                      SHIFT=-WIDTH*SIN(ANGLE)
+                      T2=F(CENTRE-SHIFT)
+                      T4=F(CENTRE+SHIFT)
+                      T2=F(CENTRE+SHIFT)
+                      T4=F(CENTRE-SHIFT)
+                      T5=T1+T3
+                      T6=T2+T4
+                      CSXFRM(J+1)=T5+T6
+                      CSXFRM(J+2)=T1-T3
+                      CSXFRM(J+3)=T5-T6
+                      CSXFRM(J+4)=T2-T4
+                      J=J+4
+120                 CONTINUE
+121               CONTINUE
+122             CONTINUE
+123           CONTINUE
+124         CONTINUE
+125       CONTINUE
+126     CONTINUE
+127   CONTINUE
+C  DO RADIX 3 PASSES OF FAST FOURIER TRANSFORM.
+      N2=2*N
+      STEP=4
+150   J1=USED+STEP
+      J2=USED+2*STEP
+      CALL R3PASS(N2,STEP,N2-2*STEP,CSXFRM(USED+1),
+     *  CSXFRM(J1+1),CSXFRM(J2+1))
+      STEP=3*STEP
+      IF (STEP .LT. N) GO TO 150
+C
+C  COMBINE RESULTS.
+C
+C  FIRST DO J=0 AND J=N.
+C
+      T1=CSXFRM(1)
+      T2=CSXFRM(USED+1)
+      CSXFRM(1)=T1+2.E0*T2
+      CSXFRM(USED+1)=T1-T2
+      T1=CSXFRM(N+1)
+      T2=CSXFRM(N2+2)
+      CSXFRM(N+1)=T1+T2
+      CSXFRM(N2+2)=T1-2.E0*T2
+C  NOW DO REMAINING VALUES OF J.
+      N3=3*N
+      N_LESS_1=N-1
+      DO 180 J=1,N_LESS_1
+        J1=N+J
+        J2=N3-J
+        ANGLE=FUND*FLOAT(J)
+        C=COS(ANGLE)
+        S=SIN(ANGLE)
+        T1=C*CSXFRM(J1+2)-S*CSXFRM(J2+2)
+        T2=(S*CSXFRM(J1+2)+C*CSXFRM(J2+2))*RT3
+        CSXFRM(J1+2)=CSXFRM(J+1)-T1-T2
+        CSXFRM(J2+2)=CSXFRM(J+1)-T1+T2
+        CSXFRM(J+1)=CSXFRM(J+1)+2.E0*T1
+180   CONTINUE
+C  NOW UNSCRAMBLE.
+      T1=CSXFRM(N2+1)
+      T2=CSXFRM(N2+2)
+      DO 190 J=1,N_LESS_1
+        J1=USED+J
+        J2=N2+J
+        CSXFRM(J2)=CSXFRM(J1)
+        CSXFRM(J1)=CSXFRM(J2+2)
+190   CONTINUE
+      CSXFRM(N3)=T1
+      CSXFRM(N3+1)=T2
+      N=N3
+      USED=N+1
+C
+C  GO TO INTEGRAL COMPUTATION.
+C
+      GO TO 210
+C
+C  INTEGRAL EVALUATION.
+C  INTEGRAL ESTIMATES ARE NOT SCALED BY WIDTH*N/2
+C  UNTIL FUNCTION CCQUAD RETURNS.
+C
+C  WHEN N=6, EVALUATE INTEGRAL FOR N=2.
+C
+200   OLDINT=(T1+2.E0*T3)/3.E0
+C
+C  EVALUATE NEW ESTIMATE OF INTEGRAL.
+C
+210   N_LESS_3=N-3
+      NEWINT=.5E0*CSXFRM(USED)/FLOAT(1-N**2)
+      DO 220 J=1,N_LESS_3,2
+        J_REV=N-J
+        NEWINT=NEWINT+CSXFRM(J_REV)/FLOAT(J_REV*(2-J_REV))
+220   CONTINUE
+      NEWINT=NEWINT+.5E0*CSXFRM(1)
+C
+C  TEST IF DONE.
+C  TEST IF ESTIMATED ERROR ADEQUATE.
+      ESTERR=ABS(OLDINT*3.E0-NEWINT)
+C
+C  INSERT THE FOLLOWING FOUR STATEMENTS TO TRACE PROGRAM FLOW.
+C     SCLINT=WIDTH*NEWINT/FLOAT(N/2)
+C     SCLERR=WIDTH*(OLDINT*3.E0-NEWINT)/FLOAT(N/2)
+C     WRITE(6,900) N,SCLINT,SCLERR
+C900  FORMAT (' N=',I5,' INTEGRAL ESTIMATED AS ',E15.8,
+C    *  ' ERROR ',E15.8 )
+      IF ( ABS(NEWINT)*TOLERR .GE. ESTERR ) GO TO 400
+C  IF ESTIMATED ERROR TOO LARGE, REFINE SAMPLING IF PERMITTED.
+      OLDINT=NEWINT
+      IF (3*N+1 .LE. MAX ) GO TO 100
+C  IF REFINEMENT NOT PERMITTED, OR IF ESTIMATED ERROR
+C  SATISFACTORY, RESCALE ANSWERS AND RETURN.
+C  INSERT THE FOLLOWING TWO STATEMENTS TO TRACE PROGRAM FLOW.
+C     WRITE (6,910)
+C 910 FORMAT (' REFINEMENT NOT PERMITTED')
+400   CCQUAD=WIDTH*NEWINT/FLOAT(N/2)
+      ESTERR=WIDTH*ESTERR/FLOAT(N/2)
+      RETURN
+      END
+      SUBROUTINE R3PASS(N2,M,LENGTH,X0,X1,X2)
+
+      IMPLICIT NONE
+
+C  RADIX 3 PASS FOR FAST FOURIER TRANSFORM OF REAL SEQUENCE
+C  OF LENGTH N2.
+      INTEGER N2,M,LENGTH
+      REAL X0(LENGTH),X1(LENGTH),X2(LENGTH)
+C  THE NOTATION OF REFERENCES 2 AND 3 IS USED IN THIS
+C  SUBROUTINE.
+C  M IS THE LENGTH OF THE TRANSFORM ALREADY ACCOMPLISHED.
+C  I.E., THE NUMBER OF DISTINCT VALUES OF THE FREQUENCY INDEX
+C  C HAT OF THESE TRANSFORMS, AND THE SPACING OF THE
+C  SEQUENCES TO BE TRANSFORMED.  EXPLICIT USE IS MADE OF THE
+C  FACT THAT M IS EVEN AND NOT LESS THAN 4.
+      INTEGER HALF_M,M3,K,K0,K1,J,J0,J1
+      REAL TWOPI,HAFRT3,RSUM,RDIFF,RSUM2,ISUM,IDIFF,IDIFF2
+      REAL FUND,ANGLE,C1,S1,C2,S2,R0,R1,R2,I0,I1,I2
+      DATA TWOPI, HAFRT3 / 6.283185307E0, .866025403E0 /
+      HALF_M=(M-1)/2
+      M3=M*3
+      FUND=TWOPI/FLOAT(M3)
+C  DO ALL TRANSFORMS FOR C HAT = 0, I.E., TWIDDLE FACTOR UNITY.
+      DO 10 K=1,N2,M3
+        RSUM=(X1(K)+X2(K))
+        RDIFF=(X1(K)-X2(K))*HAFRT3
+        X1(K)=X0(K)-RSUM*.5E0
+        X2(K)=RDIFF
+        X0(K)=X0(K)+RSUM
+10    CONTINUE
+C  DO ALL TRANSFORMS FOR C HAT = CAP C/2, I.E., TWIDDLE FACTOR.
+C  E(B/6)
+      J=M/2+1
+      DO 20 K=J,N2,M3
+        RSUM=(X1(K)+X2(K))*HAFRT3
+        RDIFF=(X1(K)-X2(K))
+        X1(K)=X0(K)-RDIFF
+        X2(K)=RSUM
+        X0(K)=X0(K)+RDIFF*.5E0
+20    CONTINUE
+C  DO ALL TRANSFORMS FOR REMAINING VALUES OF C HAT.  OBSERVE
+C  THAT C HAT AND CAP C-C HAT MUST BE PAIRED.
+C  CHOOSE A FREQUENCY INDEX.
+      DO 40 J=1,HALF_M
+        J0=J+1
+        J1=M-J+1
+C  COMPUTE THE TWIDDLE FACTOR.
+        ANGLE=FUND*FLOAT(J)
+        C1=COS(ANGLE)
+        S1=SIN(ANGLE)
+        C2=C1**2-S1**2
+        S2=2.E0*S1*C1
+C  CHOOSE THE REPLICATION.
+        DO 30 K0=J0,N2,M3
+          K1=K0-J0+J1
+C  OBTAIN TWIDDLED VALUES.
+          R0=X0(K0)
+          I0=X0(K1)
+          R1=C1*X1(K0)-S1*X1(K1)
+          I1=S1*X1(K0)+C1*X1(K1)
+          R2=C2*X2(K0)-S2*X2(K1)
+          I2=S2*X2(K0)+C2*X2(K1)
+C  COMPUTE TRANSFORMS AND RETURN IN PLACE.
+          RSUM=R1+R2
+          RDIFF=(R1-R2)*HAFRT3
+          RSUM2=R0-.5E0*RSUM
+          ISUM=I1+I2
+          IDIFF=(I1-I2)*HAFRT3
+          IDIFF2=I0-.5E0*ISUM
+          X0(K0)=R0+RSUM
+          X0(K1)=RSUM2+IDIFF
+          X1(K0)=RSUM2-IDIFF
+          X1(K1)=RDIFF+IDIFF2
+          X2(K0)=RDIFF-IDIFF2
+          X2(K1)=I0+ISUM
+30      CONTINUE
+40    CONTINUE
+      RETURN
+      END
+SHAR_EOF
+fi # end of overwriting check
+cd ..
+cd ..
+cd ..
+#       End of shell archive
+exit 0
